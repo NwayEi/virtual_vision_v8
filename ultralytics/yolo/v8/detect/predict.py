@@ -7,8 +7,15 @@ from ultralytics.yolo.engine.results import Results
 from ultralytics.yolo.utils import DEFAULT_CFG, ROOT, ops
 from ultralytics.yolo.utils.plotting import Annotator, colors, save_one_box
 
+new_text =''
+old_text = ''
 
 class DetectionPredictor(BasePredictor):
+
+    def __init__(self, cfg=DEFAULT_CFG, overrides=None):
+        super().__init__(cfg, overrides)
+        self.old_text = ''
+        self.new_text = ''
 
     def get_annotator(self, img):
         return Annotator(img, line_width=self.args.line_thickness, example=str(self.model.names))
@@ -60,6 +67,14 @@ class DetectionPredictor(BasePredictor):
         for c in det.cls.unique():
             n = (det.cls == c).sum()  # detections per class
             log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
+            self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
+
+        if self.new_text != self.old_text:
+            self.old_text = self.new_text
+            file = open('/Users/orchidaung/speech.txt','w')
+            a = file.write(self.new_text)
+            file.close()
+            self.new_text = ''
 
         # write
         for d in reversed(det):
