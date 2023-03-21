@@ -89,6 +89,12 @@ class DetectionPredictor(BasePredictor):
 
         (H,W) = im.shape[:2]
         distance = 0
+
+        for c in det.cls.unique():
+            n = (det.cls == c).sum()  # detections per class
+            log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
+            self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
+
         for i, box in enumerate(reversed(det)):
 
             x, y, width, height = det.xywh[i]
@@ -116,15 +122,8 @@ class DetectionPredictor(BasePredictor):
             else:
                 H_pos = "bottom "
 
-            self.new_text += f"Detected nearest object is {self.model.names[c]} at  {W_pos} in {distance:.2f} meter"
+            self.new_text += f"And Nearest object is {self.model.names[c]} at {H_pos}  {W_pos} in {distance:.2f} meter"
             break
-
-
-
-        for c in det.cls.unique():
-            n = (det.cls == c).sum()  # detections per class
-            log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
-
 
         if self.new_text != self.old_text:
             self.old_text = self.new_text
