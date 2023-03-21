@@ -1,7 +1,6 @@
 from multiprocessing import Process
 from ultralytics import YOLO
 from gtts import gTTS
-from collections import Counter
 from ultralytics.yolo.v8.detect.predict import DetectionPredictor
 import pyttsx3
 import time
@@ -18,7 +17,8 @@ def Speech():
             speech = f.readlines()
 
         f.close()
-        print(f'{speech}')
+        newVoiceRate = 170
+        engine.setProperty('rate',newVoiceRate)
         engine.say(f'{speech}')
         engine.runAndWait()
         time.sleep(3)

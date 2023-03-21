@@ -10,6 +10,21 @@ from ultralytics.yolo.utils.plotting import Annotator, colors, save_one_box
 new_text =''
 old_text = ''
 
+#DISTANCE CONTASTANT
+KNOWN_DISTANCE = 1.14 # meter
+PERSON_WIDTH = 0.40 #meter
+MOBILE_WIDTH = 0.08 #meter
+
+def focal_length_finder (measured_distance, real_width, width_in_rf):
+    focal_length = (width_in_rf * measured_distance) / real_width
+
+    return focal_length
+
+# distance finder function
+def distance_finder(focal_length, real_object_width, width_in_frmae):
+    distance = (real_object_width * focal_length) / width_in_frmae
+    return distance
+
 class DetectionPredictor(BasePredictor):
 
     def __init__(self, cfg=DEFAULT_CFG, overrides=None):
@@ -54,20 +69,62 @@ class DetectionPredictor(BasePredictor):
         if self.source_type.webcam or self.source_type.from_img:  # batch_size >= 1
             log_string += f'{idx}: '
             frame = self.dataset.count
+            print('------------------IF')
         else:
             frame = getattr(self.dataset, 'frame', 0)
+
         self.data_path = p
         self.txt_path = str(self.save_dir / 'labels' / p.stem) + ('' if self.dataset.mode == 'image' else f'_{frame}')
         log_string += '%gx%g ' % im.shape[2:]  # print string
         self.annotator = self.get_annotator(im0)
 
         det = results[idx].boxes  # TODO: make boxes inherit from tensors
+
+        #find focal length from a reference image
+        focal_person = focal_length_finder(KNOWN_DISTANCE, PERSON_WIDTH, 367) #TODO:: find out what to change it fto for our camera
+
         if len(det) == 0:
             return f'{log_string}(no detections), '
+
+
+        (H,W) = im.shape[:2]
+        distance = 0
+        for i, box in enumerate(reversed(det)):
+
+            x, y, width, height = det.xywh[i]
+            #(H,W) = det.shape
+            c = int(det.cls[i])
+            distance = distance_finder(focal_person, PERSON_WIDTH, width)
+
+
+            #find position of nearest detected item
+            # use the center (x, y)-coordinates to derive the top and
+			# and left corner of the bounding box
+            x = int(x - (width/2))
+            y = int(y - (height/2))
+            if x <= W/3:
+                W_pos = "left "
+            elif x <= (W/3 * 2):
+                W_pos = "center "
+            else:
+                W_pos = "right "
+
+            if y <= H/3:
+                H_pos = "top "
+            elif y <= (H/3 * 2):
+                H_pos = "mid "
+            else:
+                H_pos = "bottom "
+
+            self.new_text += f"Detected nearest object is {self.model.names[c]} at  {W_pos} in {distance:.2f} meter"
+            break
+
+
+
         for c in det.cls.unique():
             n = (det.cls == c).sum()  # detections per class
             log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
-            self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
+
 
         if self.new_text != self.old_text:
             self.old_text = self.new_text
@@ -76,17 +133,22 @@ class DetectionPredictor(BasePredictor):
             file.close()
             self.new_text = ''
 
+
+
+
         # write
         for d in reversed(det):
+
             c, conf, id = int(d.cls), float(d.conf), None if d.id is None else int(d.id.item())
             if self.args.save_txt:  # Write to file
                 line = (c, *d.xywhn.view(-1)) + (conf, ) * self.args.save_conf + (() if id is None else (id, ))
                 with open(f'{self.txt_path}.txt', 'a') as f:
                     f.write(('%g ' * len(line)).rstrip() % line + '\n')
             if self.args.save or self.args.show:  # Add bbox to image
-                name = ('' if id is None else f'id:{id} ') + self.model.names[c]
+                name = ('' if id is None else f'id:{id}') + self.model.names[c]
                 label = None if self.args.hide_labels else (name if self.args.hide_conf else f'{name} {conf:.2f}')
                 self.annotator.box_label(d.xyxy.squeeze(), label, color=colors(c, True))
+
             if self.args.save_crop:
                 save_one_box(d.xyxy,
                              imc,
