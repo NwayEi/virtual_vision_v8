@@ -6,14 +6,23 @@ from ultralytics.yolo.engine.predictor import BasePredictor
 from ultralytics.yolo.engine.results import Results
 from ultralytics.yolo.utils import DEFAULT_CFG, ROOT, ops
 from ultralytics.yolo.utils.plotting import Annotator, colors, save_one_box
-
+import ReferenceImageVal as rf
 new_text =''
 old_text = ''
 
 #DISTANCE CONTASTANT
-KNOWN_DISTANCE = 1.14 # meter
-PERSON_WIDTH = 0.40 #meter
-MOBILE_WIDTH = 0.08 #meter
+KNOWN_DISTANCE = 1 # meter
+cell_phone_WIDTH = 0.08 #meter
+person_WIDTH = 0.40 #meter
+backpack_WIDTH = 0.35
+handbag_WIDTH = 0.26
+bottle_WIDTH = 0.06
+chair_WIDTH = 0.5
+dining_table_WIDTH = 0.96
+laptop_WIDTH = 0.35
+mouse_WIDTH = 0.08
+keyboard_WIDTH = 0.42
+book_WIDTH = 0.12
 
 def focal_length_finder (measured_distance, real_width, width_in_rf):
     focal_length = (width_in_rf * measured_distance) / real_width
@@ -69,7 +78,7 @@ class DetectionPredictor(BasePredictor):
         if self.source_type.webcam or self.source_type.from_img:  # batch_size >= 1
             log_string += f'{idx}: '
             frame = self.dataset.count
-            print('------------------IF')
+
         else:
             frame = getattr(self.dataset, 'frame', 0)
 
@@ -80,9 +89,13 @@ class DetectionPredictor(BasePredictor):
 
         det = results[idx].boxes  # TODO: make boxes inherit from tensors
 
-        #find focal length from a reference image
-        focal_person = focal_length_finder(KNOWN_DISTANCE, PERSON_WIDTH, 367) #TODO:: find out what to change it fto for our camera
+        print(f'-----------------Reference Image ----{rf.person_width_in_rf}')
+        print(f'-----------------Reference Image ----{rf.mobile_width_in_rf}')
 
+
+        #find focal length from a reference image
+        #focal_person = focal_length_finder(KNOWN_DISTANCE, person_WIDTH, rf.person_width_in_rf) #TODO:: find out what to change it fto for our camera
+        #focal_mobile = focal_length_finder(KNOWN_DISTANCE, cell_phone_WIDTH, rf.mobile_width_in_rf )
         if len(det) == 0:
             return f'{log_string}(no detections), '
 
@@ -95,12 +108,40 @@ class DetectionPredictor(BasePredictor):
             log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
             self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
 
+        distances = [ ]
+        names = []
+        result = []
         for i, box in enumerate(reversed(det)):
 
+            print(f'-------CONFIDENCE SCORE---{box} ---------')
             x, y, width, height = det.xywh[i]
-            #(H,W) = det.shape
             c = int(det.cls[i])
-            distance = distance_finder(focal_person, PERSON_WIDTH, width)
+            if c == 0 :
+                focal_person = focal_length_finder(KNOWN_DISTANCE, person_WIDTH, rf.person_width_in_rf)
+                distance = distance_finder(focal_person, person_WIDTH, width)
+                print(f'------------------PERSON RF WIDTH : {rf.person_width_in_rf}')
+            if c == 67:
+                focal_mobile = focal_length_finder(KNOWN_DISTANCE, cell_phone_WIDTH, rf.mobile_width_in_rf )
+                distance = distance_finder(focal_mobile, cell_phone_WIDTH, width)
+            if c == 26:
+                focal_handbag= focal_length_finder(KNOWN_DISTANCE, handbag_WIDTH, rf.handbag_width_in_rf )
+                distance = distance_finder(focal_handbag, handbag_WIDTH, width)
+            if c == 64:
+                focal_mouse= focal_length_finder(KNOWN_DISTANCE, mouse_WIDTH, rf.mouse_width_in_rf )
+                distance = distance_finder(focal_mouse, mouse_WIDTH, width)
+            if c == 24:
+                focal_backpack= focal_length_finder(KNOWN_DISTANCE, backpack_WIDTH, rf.backpack_width_in_rf )
+                distance = distance_finder(focal_backpack, backpack_WIDTH, width)
+            if c == 39:
+                focal_bottle= focal_length_finder(KNOWN_DISTANCE, bottle_WIDTH, rf.bottle_width_in_rf )
+                distance = distance_finder(focal_bottle, bottle_WIDTH, width)
+            if c == 63:
+               focal_laptop= focal_length_finder(KNOWN_DISTANCE, laptop_WIDTH, rf.laptop_width_in_rf )
+               distance = distance_finder(focal_laptop, laptop_WIDTH, width)
+            distances.append({f'{self.model.names[c]}':distance})
+            names.append(self.model.names[c])
+
+
 
 
             #find position of nearest detected item
@@ -122,8 +163,15 @@ class DetectionPredictor(BasePredictor):
             else:
                 H_pos = "bottom "
 
-            self.new_text += f"And Nearest object is {self.model.names[c]} at {H_pos}  {W_pos} in {distance:.2f} meter"
-            break
+            #self.new_text += f"And Nearest object is {self.model.names[c]} at {H_pos}  {W_pos} in {distance:.2f} meter"
+            #break
+
+        #result.append({'distance':distances, 'name': names})
+        #print(min(distances,key = distances.get)
+        #for dist in distances:
+         #   print(f'{dist}')
+          #  for item in dist.values():
+           #     print(f'VALUE : {item}')
 
         if self.new_text != self.old_text:
             self.old_text = self.new_text
@@ -132,13 +180,12 @@ class DetectionPredictor(BasePredictor):
             file.close()
             self.new_text = ''
 
-
-
-
         # write
         for d in reversed(det):
 
             c, conf, id = int(d.cls), float(d.conf), None if d.id is None else int(d.id.item())
+            print(f'---------Confidence interval {conf}')
+
             if self.args.save_txt:  # Write to file
                 line = (c, *d.xywhn.view(-1)) + (conf, ) * self.args.save_conf + (() if id is None else (id, ))
                 with open(f'{self.txt_path}.txt', 'a') as f:
