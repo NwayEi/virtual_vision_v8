@@ -1,0 +1,13 @@
+names:
+- chair
+- desk
+nc: 2
+roboflow:
+  license: MIT
+  project: test1-byw3v
+  url: https://universe.roboflow.com/chair-and-desk/test1-byw3v/dataset/2
+  version: 2
+  workspace: chair-and-desk
+test: ../test/images
+train: test1-2/train/images
+val: test1-2/valid/images
