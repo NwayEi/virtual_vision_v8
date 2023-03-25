@@ -67,7 +67,7 @@ def Speech():
     engine = pyttsx3.init()
     while True:
 
-        with open('speech.txt') as f:
+        with open('/speech.txt') as f:
             speech = f.readlines()
 
         f.close()
@@ -75,7 +75,7 @@ def Speech():
         engine.setProperty('rate',newVoiceRate)
         engine.say(f'{speech}')
         engine.runAndWait()
-        time.sleep(3)
+        #time.sleep(3)
 
 
 def SpeechStreamLit():
@@ -108,7 +108,7 @@ def stopProcess():
 if __name__ == '__main__':
 
   p1.start()
-  p2.start()
+  #p2.start()
   #time.sleep(30)
   #stopProcess()
  # p1.join()
