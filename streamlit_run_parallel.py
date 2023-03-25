@@ -14,9 +14,9 @@ model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for
 # stop_event = mp.Event()
 start_yolo = st.button("Start")
 stop_yolo = st.button("Stop")
-running = False
-processes =[]
-pid = None
+# running = False
+# processes =[]
+# pid = None
 
 def DetectReferenceImages():
     #for i in range(80):
@@ -68,6 +68,10 @@ def Detect():
 
     model.predict(source="0", show = True)
 
+
+if start_yolo:
+        p1 = Process(target= Detect)
+        p1.start()
 # def Speech(stop_event):
 #     engine = pyttsx3.init()
 #     while True:
@@ -112,22 +116,22 @@ def Detect():
 #             unsafe_allow_html=True,
 #         ).write("# Auto-playing Audio!")
 
-# autoplay_audio("local_audio.mp3")
-def run():
-    global p1, running
+# # autoplay_audio("local_audio.mp3")
+# def run():
+#     global p1, running
 
-    # stop_event.clear()
-    p1 = Process(target= Detect)
-    p1.start()
-    # p2 = Process(target= Speech, args=(stop_event,))
-    # p2.start()
+#     # stop_event.clear()
+#     p1 = Process(target= Detect)
+#     p1.start()
+#     # p2 = Process(target= Speech, args=(stop_event,))
+#     # p2.start()
 
-    # p1.join()
-    # p2.join()
+#     # p1.join()
+#     # p2.join()
 
-    running = True
+#     running = True
 
-    st.session_state['pid'] = [p.pid for p in processes]
+#     st.session_state['pid'] = [p.pid for p in processes]
 # def stopProcess():
 #     global p1,running, processes
 
@@ -143,9 +147,8 @@ def run():
 #     else:
 #         st.write("YOLO + Speech is not running.")
 
-if __name__ == '__main__':
-    if start_yolo:
-        run()
+# if __name__ == '__main__':
+
 
     # if stop_yolo:
     #     stopProcess()
