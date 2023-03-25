@@ -7,6 +7,7 @@ import signal
 import streamlit as st
 import numpy as np
 import base64
+import pyttsx3
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 stop_event = mp.Event()
@@ -66,6 +67,19 @@ def Detect(stop_event):
 
     model.predict(source="0", show = True)
 
+def Speech(stop_event):
+    engine = pyttsx3.init()
+    while True:
+
+        with open('speech.txt') as f:
+            speech = f.readlines()
+
+        f.close()
+        newVoiceRate = 170
+        engine.setProperty('rate',newVoiceRate)
+        engine.say(f'{speech}')
+        engine.runAndWait()
+        time.sleep(3)
 
 # def SpeechStreamLit(stop_event):
 #     audio_file = open('myaudio.mp3', 'rb')
@@ -83,7 +97,7 @@ def Detect(stop_event):
 
 #     st.audio(note_la, sample_rate=sample_rate)
 
-# def autoplay_audio(file_path: str):
+# def autoplay_audio(file_path: str, stop_event):
 #     with open(file_path, "rb") as f:
 #         data = f.read()
 #         b64 = base64.b64encode(data).decode()
@@ -97,18 +111,18 @@ def Detect(stop_event):
 #             unsafe_allow_html=True,
 #         ).write("# Auto-playing Audio!")
 
-#autoplay_audio("local_audio.mp3")
+# autoplay_audio("local_audio.mp3")
 def run():
     global p1, running
 
     stop_event.clear()
     p1 = Process(target= Detect, args=(stop_event,))
     p1.start()
-    # p2 = Process(target= autoplay_audio('myaudio.mp3'), args=(stop_event,))
-    # p2.start()
+    p2 = Process(target= Speech, args=(stop_event,))
+    p2.start()
 
     p1.join()
-    # p2.join()
+    p2.join()
 
     running = True
 
