@@ -8,6 +8,7 @@ import streamlit as st
 import numpy as np
 import base64
 import pyttsx3
+import time
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 stop_event = mp.Event()
