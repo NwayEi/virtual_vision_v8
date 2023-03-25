@@ -1,0 +1,14 @@
+names:
+- Chair
+- Sofa
+- Table
+nc: 3
+roboflow:
+  license: Public Domain
+  project: furniture-sfocl
+  url: https://universe.roboflow.com/minoj-selvaraj/furniture-sfocl/dataset/1
+  version: 1
+  workspace: minoj-selvaraj
+test: ../test/images
+train: Furniture-1/train/images
+val: Furniture-1/valid/images
