@@ -9,6 +9,7 @@ import numpy as np
 import base64
 import pyttsx3
 import time
+import logging
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 # stop_event = mp.Event()
@@ -37,7 +38,7 @@ def DetectReferenceImages():
     print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
 
 def Detect():
-    print ('-----------------Detect started---------------------')
+    logging.warning ('-----------------Detect started---------------------')
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
     print(f'-----------Person width : {ri.person_width_in_rf}')
@@ -68,15 +69,19 @@ def Detect():
 
     model.predict(source="0", show = True)
 
+def test_fun():
+    logging.warning ('-----------------Detect started---------------------')
+    return "test_func compldeted"
 
 
 
 if start_yolo:
 
-        print('------------------ start predicting-----------------')
-        p1 = Process(target= Detect)
+        logging.warning('------------------ start predicting-----------------')
+        p1 = Process(target= test_fun)
         p1.start()
-        print ('-------------finish prediicting---------------------')
+        st.write(test_fun())
+        logging.warning ('-------------finish prediicting---------------------')
 # def Speech(stop_event):
 #     engine = pyttsx3.init()
 #     while True:
