@@ -90,9 +90,7 @@ class DetectionPredictor(BasePredictor):
 
         det = results[idx].boxes  # TODO: make boxes inherit from tensors
 
-        #find focal length from a reference image
-        #focal_person = focal_length_finder(KNOWN_DISTANCE, person_WIDTH, rf.person_width_in_rf) #TODO:: find out what to change it fto for our camera
-        #focal_mobile = focal_length_finder(KNOWN_DISTANCE, cell_phone_WIDTH, rf.mobile_width_in_rf )
+
         if len(det) == 0:
             return f'{log_string}(no detections), '
 
@@ -106,8 +104,6 @@ class DetectionPredictor(BasePredictor):
             self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
 
         distances = {}
-        gtts_text_result = []
-        result = []
         for i, box in enumerate(reversed(det)):
 
             print(f'-------CONFIDENCE SCORE---{box} ---------')
@@ -141,7 +137,6 @@ class DetectionPredictor(BasePredictor):
             if c == 39:
                 focal_bottle= focal_length_finder(KNOWN_DISTANCE, bottle_WIDTH, rf.bottle_width_in_rf )
                 distance = distance_finder(focal_bottle, bottle_WIDTH, width)
-                print(f'----------BOTTLE WIDTH---------{bottle_WIDTH} ----{rf.bottle_width_in_rf}------{distance}')
                 distances[self.model.names[c]] = distance
 
             if c == 63:
@@ -171,8 +166,9 @@ class DetectionPredictor(BasePredictor):
             #self.new_text += f"And Nearest object is {self.model.names[c]} at {H_pos}  {W_pos} in {distance:.2f} meter"
             #break
 
-        #result.append({'distance':distances, 'name': names})
         if distances:
+            for i in distances:
+                print(f'---------Distance : {i}')
             print('------------NEAREST OBJECT ------'+min(distances, key=distances.get))
             print('------------NEAREST OBJECT distance------'+str(min(distances.values())))
             nearest_object_name = min(distances, key=distances.get)

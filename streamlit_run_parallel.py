@@ -5,6 +5,7 @@ import ReferenceImageVal as ri
 import signal
 import streamlit as st
 import numpy as np
+import base64
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 
@@ -77,9 +78,24 @@ def SpeechStreamLit():
 
     st.audio(note_la, sample_rate=sample_rate)
 
+def autoplay_audio(file_path: str):
+    with open(file_path, "rb") as f:
+        data = f.read()
+        b64 = base64.b64encode(data).decode()
+        md = f"""
+            <audio controls autoplay="true">
+            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+            </audio>
+            """
+        st.markdown(
+            md,
+            unsafe_allow_html=True,
+        ).write("# Auto-playing Audio!")
+
+#autoplay_audio("local_audio.mp3")
 
 p1 = Process(target= Detect)
-p2 = Process(target= SpeechStreamLit)
+p2 = Process(target= autoplay_audio('myaudio.mp3'))
 
 def stopProcess():
     p1.kill()
