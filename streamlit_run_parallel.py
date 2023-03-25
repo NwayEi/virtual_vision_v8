@@ -1,3 +1,4 @@
+import multiprocessing as mp
 from multiprocessing import Process
 from ultralytics import YOLO
 from gtts import gTTS
@@ -5,9 +6,15 @@ import ReferenceImageVal as ri
 import signal
 import streamlit as st
 import numpy as np
+import base64
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-
+stop_event = mp.Event()
+start_yolo = st.button("Start")
+stop_yolo = st.button("Stop")
+running = False
+processes =[]
+pid = None
 
 def DetectReferenceImages():
     #for i in range(80):
@@ -27,8 +34,7 @@ def DetectReferenceImages():
     ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
     print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
 
-
-def Detect():
+def Detect(stop_event):
 
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
@@ -61,37 +67,73 @@ def Detect():
     model.predict(source="0", show = True)
 
 
-def SpeechStreamLit():
-    audio_file = open('myaudio.mp3', 'rb')
-    audio_bytes = audio_file.read()
+# def SpeechStreamLit(stop_event):
+#     audio_file = open('myaudio.mp3', 'rb')
+#     audio_bytes = audio_file.read()
 
-    st.audio(audio_bytes, format='audio/mp3')
+#     st.audio(audio_bytes, format='audio/mp3')
 
-    sample_rate = 44100  # 44100 samples per second
-    seconds = 2  # Note duration of 2 seconds
-    frequency_la = 440  # Our played note will be 440 Hz
-    # Generate array with seconds*sample_rate steps, ranging between 0 and seconds
-    t = np.linspace(0, seconds, seconds * sample_rate, False)
-    # Generate a 440 Hz sine wave
-    note_la = np.sin(frequency_la * t * 2 * np.pi)
+#     sample_rate = 44100  # 44100 samples per second
+#     seconds = 2  # Note duration of 2 seconds
+#     frequency_la = 440  # Our played note will be 440 Hz
+#     # Generate array with seconds*sample_rate steps, ranging between 0 and seconds
+#     t = np.linspace(0, seconds, seconds * sample_rate, False)
+#     # Generate a 440 Hz sine wave
+#     note_la = np.sin(frequency_la * t * 2 * np.pi)
 
-    st.audio(note_la, sample_rate=sample_rate)
+#     st.audio(note_la, sample_rate=sample_rate)
 
+# def autoplay_audio(file_path: str):
+#     with open(file_path, "rb") as f:
+#         data = f.read()
+#         b64 = base64.b64encode(data).decode()
+#         md = f"""
+#             <audio controls autoplay="true">
+#             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+#             </audio>
+#             """
+#         st.markdown(
+#             md,
+#             unsafe_allow_html=True,
+#         ).write("# Auto-playing Audio!")
 
-p1 = Process(target= Detect)
-p2 = Process(target= SpeechStreamLit)
+#autoplay_audio("local_audio.mp3")
+def run():
+    global p1, running
 
+    stop_event.clear()
+    p1 = Process(target= Detect, args=(stop_event,))
+    p1.start()
+    # p2 = Process(target= autoplay_audio('myaudio.mp3'), args=(stop_event,))
+    # p2.start()
+
+    p1.join()
+    # p2.join()
+
+    running = True
+
+    st.session_state['pid'] = [p.pid for p in processes]
 def stopProcess():
-    p1.kill()
-    p2.kill()
-    print('--------------EXIT START------------------')
-    signal.SIGINT
-    print('--------------EXIT END------------------')
+    global p1,running, processes
+
+    if running:
+        stop_event.set()
+        for p in processes:
+            p.terminate()
+        print("YOLO and speech processes have stopped.")
+        running = False
+        st.session_state['pid'] = None
+
+        st.write("YOLO + Speech stopped.")
+    else:
+        st.write("YOLO + Speech is not running.")
 
 if __name__ == '__main__':
+    if start_yolo:
+        run()
 
-  p1.start()
-  p2.start()
+    if stop_yolo:
+        stopProcess()
   #time.sleep(30)
   #stopProcess()
  # p1.join()
