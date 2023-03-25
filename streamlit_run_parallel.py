@@ -11,7 +11,7 @@ import pyttsx3
 import time
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-stop_event = mp.Event()
+# stop_event = mp.Event()
 start_yolo = st.button("Start")
 stop_yolo = st.button("Stop")
 running = False
@@ -36,7 +36,7 @@ def DetectReferenceImages():
     ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
     print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
 
-def Detect(stop_event):
+def Detect():
 
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
@@ -68,19 +68,19 @@ def Detect(stop_event):
 
     model.predict(source="0", show = True)
 
-def Speech(stop_event):
-    engine = pyttsx3.init()
-    while True:
+# def Speech(stop_event):
+#     engine = pyttsx3.init()
+#     while True:
 
-        with open('speech.txt') as f:
-            speech = f.readlines()
+#         with open('speech.txt') as f:
+#             speech = f.readlines()
 
-        f.close()
-        newVoiceRate = 170
-        engine.setProperty('rate',newVoiceRate)
-        engine.say(f'{speech}')
-        engine.runAndWait()
-        time.sleep(3)
+#         f.close()
+#         newVoiceRate = 170
+#         engine.setProperty('rate',newVoiceRate)
+#         engine.say(f'{speech}')
+#         engine.runAndWait()
+#         time.sleep(3)
 
 # def SpeechStreamLit(stop_event):
 #     audio_file = open('myaudio.mp3', 'rb')
@@ -116,39 +116,39 @@ def Speech(stop_event):
 def run():
     global p1, running
 
-    stop_event.clear()
-    p1 = Process(target= Detect, args=(stop_event,))
+    # stop_event.clear()
+    p1 = Process(target= Detect)
     p1.start()
-    p2 = Process(target= Speech, args=(stop_event,))
-    p2.start()
+    # p2 = Process(target= Speech, args=(stop_event,))
+    # p2.start()
 
-    p1.join()
-    p2.join()
+    # p1.join()
+    # p2.join()
 
     running = True
 
     st.session_state['pid'] = [p.pid for p in processes]
-def stopProcess():
-    global p1,running, processes
+# def stopProcess():
+#     global p1,running, processes
 
-    if running:
-        stop_event.set()
-        for p in processes:
-            p.terminate()
-        print("YOLO and speech processes have stopped.")
-        running = False
-        st.session_state['pid'] = None
+#     if running:
+#         stop_event.set()
+#         for p in processes:
+#             p.terminate()
+#         print("YOLO and speech processes have stopped.")
+#         running = False
+#         st.session_state['pid'] = None
 
-        st.write("YOLO + Speech stopped.")
-    else:
-        st.write("YOLO + Speech is not running.")
+#         st.write("YOLO + Speech stopped.")
+#     else:
+#         st.write("YOLO + Speech is not running.")
 
 if __name__ == '__main__':
     if start_yolo:
         run()
 
-    if stop_yolo:
-        stopProcess()
+    # if stop_yolo:
+    #     stopProcess()
   #time.sleep(30)
   #stopProcess()
  # p1.join()
