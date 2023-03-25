@@ -37,11 +37,13 @@ def DetectReferenceImages():
     ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
     print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
 
-def Detect():
+def test_fun():
     logging.warning ('-----------------Detect started---------------------')
+    st.write('test_fun started')
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
     print(f'-----------Person width : {ri.person_width_in_rf}')
+    st.write(f'-----------Person width : {ri.person_width_in_rf}')
 
     result_cellphone= model.predict(source='ReferenceImages/cellphone.png')
     ri.mobile_width_in_rf = result_cellphone[0].boxes.xywh[0][2]
@@ -69,9 +71,9 @@ def Detect():
 
     model.predict(source="0", show = True)
 
-def test_fun():
-    logging.warning ('-----------------Detect started---------------------')
-    return "test_func compldeted"
+# def test_fun():
+#     logging.warning ('-----------------Detect started---------------------')
+#     return "test_func compldeted"
 
 
 
