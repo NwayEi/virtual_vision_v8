@@ -6,7 +6,8 @@ import pyttsx3
 import time
 import ReferenceImageVal as ri
 import signal
-
+import streamlit as st
+import numpy as np
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 
@@ -66,7 +67,7 @@ def Speech():
     engine = pyttsx3.init()
     while True:
 
-        with open('/Users/orchidaung/speech.txt') as f:
+        with open('speech.txt') as f:
             speech = f.readlines()
 
         f.close()
@@ -76,6 +77,22 @@ def Speech():
         engine.runAndWait()
         time.sleep(3)
 
+
+def SpeechStreamLit():
+    audio_file = open('myaudio.mp3', 'rb')
+    audio_bytes = audio_file.read()
+
+    st.audio(audio_bytes, format='audio/mp3')
+
+    sample_rate = 44100  # 44100 samples per second
+    seconds = 2  # Note duration of 2 seconds
+    frequency_la = 440  # Our played note will be 440 Hz
+    # Generate array with seconds*sample_rate steps, ranging between 0 and seconds
+    t = np.linspace(0, seconds, seconds * sample_rate, False)
+    # Generate a 440 Hz sine wave
+    note_la = np.sin(frequency_la * t * 2 * np.pi)
+
+    st.audio(note_la, sample_rate=sample_rate)
 
 
 p1 = Process(target= Detect)
@@ -93,9 +110,6 @@ if __name__ == '__main__':
   p1.start()
   p2.start()
   #time.sleep(30)
-
-
   #stopProcess()
-
  # p1.join()
  # p2.join()
