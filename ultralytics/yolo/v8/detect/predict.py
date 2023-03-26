@@ -6,7 +6,7 @@ from ultralytics.yolo.engine.predictor import BasePredictor
 from ultralytics.yolo.engine.results import Results
 from ultralytics.yolo.utils import DEFAULT_CFG, ROOT, ops
 from ultralytics.yolo.utils.plotting import Annotator, colors, save_one_box
-from gtts import gTTS
+# from gtts import gTTS
 import ReferenceImageVal as rf
 new_text =''
 old_text = ''
