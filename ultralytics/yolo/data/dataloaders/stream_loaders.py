@@ -40,7 +40,7 @@ import av
 
 class LoadStreams:
     # Streamlit camera loader
-    def __init__(self, auto=True, transforms=None):
+    def __init__(self,auto=True, transforms=None):
         self.mode = 'stream'
         self.transforms = transforms
 
@@ -55,29 +55,32 @@ class LoadStreams:
         self.imgs = [img]
 
     def __iter__(self):
-        while True:
-            webrtc_ctx = webrtc_streamer(
-                key="camera",
-                mode=WebRtcMode.SENDRECV,
-                rtc_configuration={
-                    "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-                },
-                media_stream_constraints={
-                    "video": {"width": 640, "height": 480},
-                    "audio": False,
-                }
-            )
+        return self
 
-            if webrtc_ctx.video_receiver:
-                # Receive 1 video stream from the webcam
-                for i, frame in enumerate(webrtc_ctx.video_receiver.frames()):
-                    img = frame.to_ndarray(format="bgr24")
-                    if self.transforms is not None:
-                        img = self.transforms(image=img)['image']
-                    self.update(img)
-                    yield img
-            else:
-                break
+    def __next__(self):
+        webrtc_ctx = webrtc_streamer(
+            key="camera",
+            mode=WebRtcMode.SENDRECV,
+            rtc_configuration={
+                "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+            },
+            media_stream_constraints={
+                "video": {"width": 640, "height": 480},
+                "audio": False,
+            }
+        )
+
+        if webrtc_ctx.video_receiver:
+            # Receive 1 video stream from the webcam
+            for i, frame in enumerate(webrtc_ctx.video_receiver.frames()):
+                img = frame.to_ndarray(format="bgr24")
+                if self.transforms is not None:
+                    img = self.transforms(image=img)['image']
+                self.update(img)
+                yield img
+        else:
+            raise StopIteration
+            
 class LoadStreamsWrapper:
     def __init__(self, transforms=None):
         self.transforms = transforms
