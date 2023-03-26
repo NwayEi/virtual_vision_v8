@@ -78,18 +78,17 @@ class LoadStreams:
                     yield img
             else:
                 break
+class LoadStreamsWrapper:
+    def __init__(self, transforms=None):
+        self.transforms = transforms
+        self.streams = LoadStreams(transforms=self.transforms)
 
-    def main(self):
-        # Create a Streamlit page
-        st.title('Streamlit Camera Loader')
-        st.markdown('This app loads images from the webcam using the Streamlit Webrtc component.')
+    def __iter__(self):
+        return self
 
-        # Initialize the loader
-        loader = self
-
-        # Display the camera stream
-        for img in loader:
-            st.image(img, channels='BGR')
+    def __next__(self):
+        frame = next(self.streams)
+        return frame[...,::-1]
 
 # class LoadStreams:
 #     # YOLOv8 streamloader, i.e. `yolo predict source='rtsp://example.com/media.mp4'  # RTSP, RTMP, HTTP streams`
