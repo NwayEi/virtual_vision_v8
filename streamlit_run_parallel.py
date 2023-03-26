@@ -46,7 +46,7 @@ def detect():
     logging.warning ('-----------------Detect started---------------------')
     st.write('test_fun started')
 #     for img in loader.main():
-    stream = LoadStreamsWrapper()
+    stream = LoadStreams()
     for frame in stream:
         result = model.predict(source='ReferenceImages/person.png')
         ri.person_width_in_rf = result[0].boxes.xywh[0][2]
