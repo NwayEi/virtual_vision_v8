@@ -28,100 +28,163 @@ class SourceTypes:
     from_img: bool = False
     tensor: bool = False
 
+import streamlit as st
+from streamlit_webrtc import (
+    ClientSettings,
+    VideoProcessorBase,
+    WebRtcMode,
+    webrtc_streamer,
+)
+import av
+
 
 class LoadStreams:
-    # YOLOv8 streamloader, i.e. `yolo predict source='rtsp://example.com/media.mp4'  # RTSP, RTMP, HTTP streams`
-    def __init__(self, sources='file.streams', imgsz=640, stride=32, auto=True, transforms=None, vid_stride=1):
-        torch.backends.cudnn.benchmark = True  # faster for fixed-size inference
+    # Streamlit camera loader
+    def __init__(self, auto=True, transforms=None):
         self.mode = 'stream'
-        self.imgsz = imgsz
-        self.stride = stride
-        self.vid_stride = vid_stride  # video frame-rate stride
-        sources = Path(sources).read_text().rsplit() if os.path.isfile(sources) else [sources]
-        n = len(sources)
-        self.sources = [ops.clean_str(x) for x in sources]  # clean source names for later
-        self.imgs, self.fps, self.frames, self.threads = [None] * n, [0] * n, [0] * n, [None] * n
-        for i, s in enumerate(sources):  # index, source
-            # Start thread to read frames from video stream
-            st = f'{i + 1}/{n}: {s}... '
-            if urlparse(s).hostname in ('www.youtube.com', 'youtube.com', 'youtu.be'):  # if source is YouTube video
-                # YouTube format i.e. 'https://www.youtube.com/watch?v=Zgi9g1ksQHc' or 'https://youtu.be/Zgi9g1ksQHc'
-                check_requirements(('pafy', 'youtube_dl==2020.12.2'))
-                import pafy  # noqa
-                s = pafy.new(s).getbest(preftype='mp4').url  # YouTube URL
-            s = eval(s) if s.isnumeric() else s  # i.e. s = '0' local webcam
-            if s == 0 and (is_colab() or is_kaggle()):
-                raise NotImplementedError("'source=0' webcam not supported in Colab and Kaggle notebooks. "
-                                          "Try running 'source=0' in a local environment.")
-            cap = cv2.VideoCapture(s)
-            if not cap.isOpened():
-                raise ConnectionError(f'{st}Failed to open {s}')
-            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            fps = cap.get(cv2.CAP_PROP_FPS)  # warning: may return 0 or nan
-            self.frames[i] = max(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), 0) or float('inf')  # infinite stream fallback
-            self.fps[i] = max((fps if math.isfinite(fps) else 0) % 100, 0) or 30  # 30 FPS fallback
+        self.transforms = transforms
 
-            success, self.imgs[i] = cap.read()  # guarantee first frame
-            if not success or self.imgs[i] is None:
-                raise ConnectionError(f'{st}Failed to read images from {s}')
-            self.threads[i] = Thread(target=self.update, args=([i, cap, s]), daemon=True)
-            LOGGER.info(f'{st}Success ✅ ({self.frames[i]} frames of shape {w}x{h} at {self.fps[i]:.2f} FPS)')
-            self.threads[i].start()
-        LOGGER.info('')  # newline
-
-        # check for common shapes
-        s = np.stack([LetterBox(imgsz, auto, stride=stride)(image=x).shape for x in self.imgs])
-        self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
-        self.auto = auto and self.rect
-        self.transforms = transforms  # optional
-        self.bs = self.__len__()
-
-        if not self.rect:
-            LOGGER.warning('WARNING ⚠️ Stream shapes differ. For optimal performance supply similarly-shaped streams.')
-
-    def update(self, i, cap, stream):
-        # Read stream `i` frames in daemon thread
-        n, f = 0, self.frames[i]  # frame number, frame array
-        while cap.isOpened() and n < f:
-            n += 1
-            cap.grab()  # .read() = .grab() followed by .retrieve()
-            if n % self.vid_stride == 0:
-                success, im = cap.retrieve()
-                if success:
-                    self.imgs[i] = im
-                else:
-                    LOGGER.warning('WARNING ⚠️ Video stream unresponsive, please check your IP camera connection.')
-                    self.imgs[i] = np.zeros_like(self.imgs[i])
-                    cap.open(stream)  # re-open stream if signal was lost
-            time.sleep(0.0)  # wait time
-
-    def __iter__(self):
-        self.count = -1
-        return self
-
-    def __next__(self):
-        self.count += 1
-        if not all(x.is_alive() for x in self.threads) or cv2.waitKey(1) == ord('q'):  # q to quit
-            cv2.destroyAllWindows()
-            raise StopIteration
-
-        im0 = self.imgs.copy()
-        if self.transforms:
-            im = np.stack([self.transforms(x) for x in im0])  # transforms
-        else:
-            im = np.stack([LetterBox(self.imgsz, self.auto, stride=self.stride)(image=x) for x in im0])
-            im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
-            im = np.ascontiguousarray(im)  # contiguous
-
-        return self.sources, im, im0, None, ''
+        # Initialize the '_components_callbacks' key if it doesn't exist
+        if '_components_callbacks' not in st.session_state:
+            st.session_state['_components_callbacks'] = {}
 
     def __len__(self):
-        return len(self.sources)  # 1E12 frames = 32 streams at 30 FPS for 30 years
+        return 1
+
+    def update(self, img):
+        self.imgs = [img]
+
+    def __iter__(self):
+        while True:
+            webrtc_ctx = webrtc_streamer(
+                key="camera",
+                mode=WebRtcMode.SENDRECV,
+                rtc_configuration={
+                    "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+                },
+                media_stream_constraints={
+                    "video": {"width": 640, "height": 480},
+                    "audio": False,
+                }
+            )
+
+            if webrtc_ctx.video_receiver:
+                # Receive 1 video stream from the webcam
+                for i, frame in enumerate(webrtc_ctx.video_receiver.frames()):
+                    img = frame.to_ndarray(format="bgr24")
+                    if self.transforms is not None:
+                        img = self.transforms(image=img)['image']
+                    self.update(img)
+                    yield img
+            else:
+                break
+
+    def main(self):
+        # Create a Streamlit page
+        st.title('Streamlit Camera Loader')
+        st.markdown('This app loads images from the webcam using the Streamlit Webrtc component.')
+
+        # Initialize the loader
+        loader = self
+
+        # Display the camera stream
+        for img in loader:
+            st.image(img, channels='BGR')
+
+# class LoadStreams:
+#     # YOLOv8 streamloader, i.e. `yolo predict source='rtsp://example.com/media.mp4'  # RTSP, RTMP, HTTP streams`
+#     def __init__(self, sources='file.streams', imgsz=640, stride=32, auto=True, transforms=None, vid_stride=1):
+#         torch.backends.cudnn.benchmark = True  # faster for fixed-size inference
+#         self.mode = 'stream'
+#         self.imgsz = imgsz
+#         self.stri\de = stride
+#         self.vid_stride = vid_stride  # video frame-rate stride
+#         sources = Path(sources).read_text().rsplit() if os.path.isfile(sources) else [sources]
+#         n = len(sources)
+#         self.sources = [ops.clean_str(x) for x in sources]  # clean source names for later
+#         self.imgs, self.fps, self.frames, self.threads = [None] * n, [0] * n, [0] * n, [None] * n
+#         for i, s in enumerate(sources):  # index, source
+#             # Start thread to read frames from video stream
+#             st = f'{i + 1}/{n}: {s}... '
+#             if urlparse(s).hostname in ('www.youtube.com', 'youtube.com', 'youtu.be'):  # if source is YouTube video
+#                 # YouTube format i.e. 'https://www.youtube.com/watch?v=Zgi9g1ksQHc' or 'https://youtu.be/Zgi9g1ksQHc'
+#                 check_requirements(('pafy', 'youtube_dl==2020.12.2'))
+#                 import pafy  # noqa
+#                 s = pafy.new(s).getbest(preftype='mp4').url  # YouTube URL
+#             s = eval(s) if s.isnumeric() else s  # i.e. s = '0' local webcam
+#             if s == 0 and (is_colab() or is_kaggle()):
+#                 raise NotImplementedError("'source=0' webcam not supported in Colab and Kaggle notebooks. "
+#                                           "Try running 'source=0' in a local environment.")
+#             cap = cv2.VideoCapture(s)
+#             if not cap.isOpened():
+#                 raise ConnectionError(f'{st}Failed to open {s}')
+#             w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+#             h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+#             fps = cap.get(cv2.CAP_PROP_FPS)  # warning: may return 0 or nan
+#             self.frames[i] = max(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), 0) or float('inf')  # infinite stream fallback
+#             self.fps[i] = max((fps if math.isfinite(fps) else 0) % 100, 0) or 30  # 30 FPS fallback
+
+#             success, self.imgs[i] = cap.read()  # guarantee first frame
+#             if not success or self.imgs[i] is None:
+#                 raise ConnectionError(f'{st}Failed to read images from {s}')
+#             self.threads[i] = Thread(target=self.update, args=([i, cap, s]), daemon=True)
+#             LOGGER.info(f'{st}Success ✅ ({self.frames[i]} frames of shape {w}x{h} at {self.fps[i]:.2f} FPS)')
+#             self.threads[i].start()
+#         LOGGER.info('')  # newline
+
+#         # check for common shapes
+#         s = np.stack([LetterBox(imgsz, auto, stride=stride)(image=x).shape for x in self.imgs])
+#         self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
+#         self.auto = auto and self.rect
+#         self.transforms = transforms  # optional
+#         self.bs = self.__len__()
+
+#         if not self.rect:
+#             LOGGER.warning('WARNING ⚠️ Stream shapes differ. For optimal performance supply similarly-shaped streams.')
+
+    # def update(self, i, cap, stream):
+    #     # Read stream `i` frames in daemon thread
+    #     n, f = 0, self.frames[i]  # frame number, frame array
+    #     while cap.isOpened() and n < f:
+    #         n += 1
+    #         cap.grab()  # .read() = .grab() followed by .retrieve()
+    #         if n % self.vid_stride == 0:
+    #             success, im = cap.retrieve()
+    #             if success:
+    #                 self.imgs[i] = im
+    #             else:
+    #                 LOGGER.warning('WARNING ⚠️ Video stream unresponsive, please check your IP camera connection.')
+    #                 self.imgs[i] = np.zeros_like(self.imgs[i])
+    #                 cap.open(stream)  # re-open stream if signal was lost
+    #         time.sleep(0.0)  # wait time
+
+    # def __iter__(self):
+    #     self.count = -1
+    #     return self
+
+    # def __next__(self):
+    #     self.count += 1
+    #     if cv2.waitKey(1) == ord('q'):
+    #     # if not all(x.is_alive() for x in self.threads) or cv2.waitKey(1) == ord('q'):  # q to quit
+    #         cv2.destroyAllWindows()
+    #         raise StopIteration
+
+    #     # im0 = self.imgs.copy()
+    #     # if self.transforms:
+    #     #     im = np.stack([self.transforms(x) for x in im0])  # transforms
+    #     # else:
+    #     #     im = np.stack([LetterBox(self.imgsz, self.auto, stride=self.stride)(image=x) for x in im0])
+    #     #     im = im[..., ::-1].transpose((0, 3, 1, 2))  # BGR to RGB, BHWC to BCHW
+    #     #     im = np.ascontiguousarray(im)  # contiguous
+
+    #     # return self.sources, im, im0, None, ''
+
+    # def __len__(self):
+    #     return len(self.sources)  # 1E12 frames = 32 streams at 30 FPS for 30 years
 
 
 class LoadScreenshots:
-    # YOLOv8 screenshot dataloader, i.e. `yolo predict source=screen`
+    # YOLOv8 screenshot dataloader, i.qqqe. `yolo predict source=screen`
     def __init__(self, source, imgsz=640, stride=32, auto=True, transforms=None):
         # source = [screen_number left top width height] (pixels)
         check_requirements('mss')

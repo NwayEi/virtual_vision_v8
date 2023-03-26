@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from multiprocessing import Process
 from ultralytics import YOLO
-from gtts import gTTS
+# from gtts import gTTS
 import ReferenceImageVal as ri
 import signal
 import streamlit as st
@@ -10,16 +10,21 @@ import base64
 import pyttsx3
 import time
 import logging
+import cv2
+
+from ultralytics.yolo.data.dataloaders.stream_loaders import (LoadStreams)
+
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 # stop_event = mp.Event()
+
+# running = False
+processes =[]
+pid = None
+loader = LoadStreams()
 start_yolo = st.button("Start")
 stop_yolo = st.button("Stop")
-# running = False
-# processes =[]
-# pid = None
-
-def DetectReferenceImages():
+def detectreferenceimages():
     #for i in range(80):
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
@@ -37,39 +42,41 @@ def DetectReferenceImages():
     ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
     print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
 
-def test_fun():
+def detect():
     logging.warning ('-----------------Detect started---------------------')
     st.write('test_fun started')
-    result = model.predict(source='ReferenceImages/person.png')
-    ri.person_width_in_rf = result[0].boxes.xywh[0][2]
-    print(f'-----------Person width : {ri.person_width_in_rf}')
-    st.write(f'-----------Person width : {ri.person_width_in_rf}')
+    for img in loader.main():
 
-    result_cellphone= model.predict(source='ReferenceImages/cellphone.png')
-    ri.mobile_width_in_rf = result_cellphone[0].boxes.xywh[0][2]
-    print(f'-----------Cellphone width : {ri.mobile_width_in_rf}')
+        result = model.predict(source='ReferenceImages/person.png')
+        ri.person_width_in_rf = result[0].boxes.xywh[0][2]
+        print(f'-----------Person width : {ri.person_width_in_rf}')
+        st.write(f'-----------Person width : {ri.person_width_in_rf}')
 
-    result_handbag = model.predict(source='ReferenceImages/handbag.jpeg')
-    ri.handbag_width_in_rf = result_handbag[0].boxes.xywh[0][2]
-    print(f'-----------Handbag width : {ri.handbag_width_in_rf}')
+        result_cellphone= model.predict(source='ReferenceImages/cellphone.png')
+        ri.mobile_width_in_rf = result_cellphone[0].boxes.xywh[0][2]
+        print(f'-----------Cellphone width : {ri.mobile_width_in_rf}')
 
-    result_mouse = model.predict(source='ReferenceImages/mouse.jpeg')
-    ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
-    print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
+        result_handbag = model.predict(source='ReferenceImages/handbag.jpeg')
+        ri.handbag_width_in_rf = result_handbag[0].boxes.xywh[0][2]
+        print(f'-----------Handbag width : {ri.handbag_width_in_rf}')
 
-    result_bottle = model.predict(source='ReferenceImages/bottle.jpeg')
-    ri.bottle_width_in_rf = result_bottle[0].boxes.xywh[0][2]
-    print(f'-----------Bottle width : {ri.bottle_width_in_rf}')
+        result_mouse = model.predict(source='ReferenceImages/mouse.jpeg')
+        ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
+        print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
 
-    result_backpack = model.predict(source='ReferenceImages/backpack.jpeg')
-    ri.backpack_width_in_rf = result_backpack[0].boxes.xywh[0][2]
-    print(f'-----------Backpack width : {ri.backpack_width_in_rf}')
+        result_bottle = model.predict(source='ReferenceImages/bottle.jpeg')
+        ri.bottle_width_in_rf = result_bottle[0].boxes.xywh[0][2]
+        print(f'-----------Bottle width : {ri.bottle_width_in_rf}')
 
-    result_laptop = model.predict(source='ReferenceImages/laptop.jpeg')
-    ri.laptop_width_in_rf = result_laptop[0].boxes.xywh[0][2]
-    print(f'-----------Laptop width : {ri.laptop_width_in_rf}')
+        result_backpack = model.predict(source='ReferenceImages/backpack.jpeg')
+        ri.backpack_width_in_rf = result_backpack[0].boxes.xywh[0][2]
+        print(f'-----------Backpack width : {ri.backpack_width_in_rf}')
 
-    model.predict(source="0", show = True)
+        result_laptop = model.predict(source='ReferenceImages/laptop.jpeg')
+        ri.laptop_width_in_rf = result_laptop[0].boxes.xywh[0][2]
+        print(f'-----------Laptop width : {ri.laptop_width_in_rf}')
+
+        model.predict(source = img, show = True)
 
 # def test_fun():
 #     logging.warning ('-----------------Detect started---------------------')
@@ -80,10 +87,12 @@ def test_fun():
 if start_yolo:
 
         logging.warning('------------------ start predicting-----------------')
-        p1 = Process(target= test_fun)
+        p1 = Process(target= detect)
         p1.start()
-        st.write(test_fun())
+        processes.append(p1)
+        st.write('detect starting')
         logging.warning ('-------------finish prediicting---------------------')
+
 # def Speech(stop_event):
 #     engine = pyttsx3.init()
 #     while True:
@@ -153,7 +162,7 @@ if start_yolo:
 #             p.terminate()
 #         print("YOLO and speech processes have stopped.")
 #         running = False
-#         st.session_state['pid'] = None
+#         st.te['pid'] = None
 
 #         st.write("YOLO + Speech stopped.")
 #     else:

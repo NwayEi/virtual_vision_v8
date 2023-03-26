@@ -132,7 +132,7 @@ class BasePredictor:
                                              stride=self.model.stride,
                                              auto=self.model.pt)
         self.source_type = self.dataset.source_type
-        self.vid_path, self.vid_writer = [None] * self.dataset.bs, [None] * self.dataset.bs
+        # self.vid_path, self.vid_writer = [None] * self.dataset.bs, [None] * self.dataset.bs
 
     @smart_inference_mode()
     def stream_inference(self, source=None, model=None):
@@ -205,8 +205,8 @@ class BasePredictor:
                 LOGGER.info(f'{s}{self.dt[1].dt * 1E3:.1f}ms')
 
         # Release assets
-        if isinstance(self.vid_writer[-1], cv2.VideoWriter):
-            self.vid_writer[-1].release()  # release final video writer
+        # if isinstance(self.vid_writer[-1], cv2.VideoWriter):
+        #     self.vid_writer[-1].release()  # release final video writer
 
         # Print results
         if self.args.verbose and self.seen:
