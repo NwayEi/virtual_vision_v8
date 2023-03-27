@@ -10,20 +10,19 @@ from gtts import gTTS
 import ReferenceImageVal as rf
 new_text =''
 old_text = ''
+Indoor_detected_class = [0,13,26,56,24,57,63]
 
 #DISTANCE CONTASTANT
-KNOWN_DISTANCE = 1 # meter
+KNOWN_DISTANCE = 1.5 # meter
 cell_phone_WIDTH = 0.08 #meter
 person_WIDTH = 0.40 #meter
 backpack_WIDTH = 0.35
 handbag_WIDTH = 0.26
-bottle_WIDTH = 0.06
 chair_WIDTH = 0.5
 dining_table_WIDTH = 0.96
 laptop_WIDTH = 0.35
-mouse_WIDTH = 0.08
-keyboard_WIDTH = 0.42
-book_WIDTH = 0.12
+bench_WIDTH = 0.45
+couch_WIDTH = 2.21
 
 def focal_length_finder (measured_distance, real_width, width_in_rf):
     focal_length = (width_in_rf * measured_distance) / real_width
@@ -92,6 +91,9 @@ class DetectionPredictor(BasePredictor):
 
 
         if len(det) == 0:
+            file = open('speech.txt','w')
+            a = file.write('')
+            file.close()
             return f'{log_string}(no detections), '
 
 
@@ -99,50 +101,52 @@ class DetectionPredictor(BasePredictor):
         distance = 0
 
         for c in det.cls.unique():
-            n = (det.cls == c).sum()  # detections per class
-            log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
-            self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
+            if c in Indoor_detected_class:
+                n = (det.cls == c).sum()  # detections per class
+                log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
+                self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
 
         distances = {}
+        positions = {}
         for i, box in enumerate(reversed(det)):
-
-            print(f'-------CONFIDENCE SCORE---{box} ---------')
             x, y, width, height = det.xywh[i]
             c = int(det.cls[i])
-            if c == 0 :
+            if c == 0 : # 1. Person
                 focal_person = focal_length_finder(KNOWN_DISTANCE, person_WIDTH, rf.person_width_in_rf)
                 distance = distance_finder(focal_person, person_WIDTH, width)
                 distances[self.model.names[c]] = distance
 
-            if c == 67:
-                focal_mobile = focal_length_finder(KNOWN_DISTANCE, cell_phone_WIDTH, rf.mobile_width_in_rf )
-                distance = distance_finder(focal_mobile, cell_phone_WIDTH, width)
+            if c == 13: # 2. Bench
+                focal_bench = focal_length_finder(KNOWN_DISTANCE, bench_WIDTH, rf.bench_width_in_rf )
+                distance = distance_finder(focal_bench, bench_WIDTH, width)
                 distances[self.model.names[c]] = distance
 
-            if c == 26:
+            if c == 26: # 3. Handbag
                 focal_handbag= focal_length_finder(KNOWN_DISTANCE, handbag_WIDTH, rf.handbag_width_in_rf )
                 distance = distance_finder(focal_handbag, handbag_WIDTH, width)
                 distances[self.model.names[c]] = distance
 
-            if c == 64:
-                focal_mouse= focal_length_finder(KNOWN_DISTANCE, mouse_WIDTH, rf.mouse_width_in_rf )
-                distance = distance_finder(focal_mouse, mouse_WIDTH, width)
+            if c == 56: # 4. Chair
+                focal_chair = focal_length_finder(KNOWN_DISTANCE, chair_WIDTH, rf.chair_width_in_rf )
+                distance = distance_finder(focal_chair, chair_WIDTH, width)
                 distances[self.model.names[c]] = distance
 
-            if c == 24:
+            if c == 24: # 5. Backpack
                 focal_backpack= focal_length_finder(KNOWN_DISTANCE, backpack_WIDTH, rf.backpack_width_in_rf )
                 distance = distance_finder(focal_backpack, backpack_WIDTH, width)
                 distances[self.model.names[c]] = distance
 
-            if c == 39:
-                focal_bottle= focal_length_finder(KNOWN_DISTANCE, bottle_WIDTH, rf.bottle_width_in_rf )
-                distance = distance_finder(focal_bottle, bottle_WIDTH, width)
+            if c == 57: # 6. Couch
+                focal_couch= focal_length_finder(KNOWN_DISTANCE, couch_WIDTH, rf.couch_width_in_rf )
+                distance = distance_finder(focal_couch, couch_WIDTH, width)
                 distances[self.model.names[c]] = distance
 
-            if c == 63:
+            if c == 63: # 7. Laptop
                focal_laptop= focal_length_finder(KNOWN_DISTANCE, laptop_WIDTH, rf.laptop_width_in_rf )
                distance = distance_finder(focal_laptop, laptop_WIDTH, width)
                distances[self.model.names[c]] = distance
+
+            #TODO: Add TV,Dining Table, Suitcase, Potted Plant
 
             #find position of nearest detected item
             # use the center (x, y)-coordinates to derive the top and
@@ -163,18 +167,18 @@ class DetectionPredictor(BasePredictor):
             else:
                 H_pos = "bottom "
 
-            #self.new_text += f"And Nearest object is {self.model.names[c]} at {H_pos}  {W_pos} in {distance:.2f} meter"
-            #break
+            positions[str(distance)] = f'{H_pos} {W_pos}'
+
 
         if distances:
-            for i in distances:
-                print(f'---------Distance : {i}')
-            print('------------NEAREST OBJECT ------'+min(distances, key=distances.get))
-            print('------------NEAREST OBJECT distance------'+str(min(distances.values())))
+            print('------------NEAREST OBJECT ------'+ min(distances, key=distances.get))
+            print('------------NEAREST OBJECT distance------'+ str(min(distances.values())))
+            #get nearest object name distance from dictionary
             nearest_object_name = min(distances, key=distances.get)
             nearest_object_distance = min(distances.values())
-            #at {H_pos}  {W_pos}
-            self.new_text += f"And Nearest object is {nearest_object_name} in {nearest_object_distance:.2f} meter"
+
+            self.new_text += f"And Nearest object is {nearest_object_name} at {positions.get(str(nearest_object_distance))} in {nearest_object_distance:.2f} meter"
+
 
         if self.new_text != self.old_text:
             #Write to the file
@@ -184,38 +188,38 @@ class DetectionPredictor(BasePredictor):
             file.close()
 
             #Generate mp3 file
-            gtts = gTTS(self.new_text, lang='en')
-            gtts.save('myaudio.mp3')
-
-            #reset the text
+            if self.new_text != '':
+                gtts = gTTS(self.new_text, lang='en')
+                gtts.save('myaudio.mp3')
             self.new_text = ''
+
 
         # write
         for d in reversed(det):
 
             c, conf, id = int(d.cls), float(d.conf), None if d.id is None else int(d.id.item())
-            print(f'---------Confidence interval {conf}')
+            if c in Indoor_detected_class:
 
-            if self.args.save_txt:  # Write to file
-                line = (c, *d.xywhn.view(-1)) + (conf, ) * self.args.save_conf + (() if id is None else (id, ))
-                with open(f'{self.txt_path}.txt', 'a') as f:
-                    f.write(('%g ' * len(line)).rstrip() % line + '\n')
-            if self.args.save or self.args.show:  # Add bbox to image
-                name = ('' if id is None else f'id:{id}') + self.model.names[c]
-                label = None if self.args.hide_labels else (name if self.args.hide_conf else f'{name} {conf:.2f}')
-                self.annotator.box_label(d.xyxy.squeeze(), label, color=colors(c, True))
+                if self.args.save_txt:  # Write to file
+                    line = (c, *d.xywhn.view(-1)) + (conf, ) * self.args.save_conf + (() if id is None else (id, ))
+                    with open(f'{self.txt_path}.txt', 'a') as f:
+                        f.write(('%g ' * len(line)).rstrip() % line + '\n')
+                if self.args.save or self.args.show:  # Add bbox to image
+                    name = ('' if id is None else f'id:{id}') + self.model.names[c]
+                    label = None if self.args.hide_labels else (name if self.args.hide_conf else f'{name} {conf:.2f}')
+                    self.annotator.box_label(d.xyxy.squeeze(), label, color=colors(c, True))
 
-            if self.args.save_crop:
-                save_one_box(d.xyxy,
-                             imc,
-                             file=self.save_dir / 'crops' / self.model.names[c] / f'{self.data_path.stem}.jpg',
-                             BGR=True)
+                if self.args.save_crop:
+                    save_one_box(d.xyxy,
+                                imc,
+                                file=self.save_dir / 'crops' / self.model.names[c] / f'{self.data_path.stem}.jpg',
+                                BGR=True)
 
         return log_string
 
 
 def predict(cfg=DEFAULT_CFG, use_python=False):
-    model = cfg.model or 'yolov8n.pt'
+    model = cfg.model or 'yolov8m.pt'
     source = cfg.source if cfg.source is not None else ROOT / 'assets' if (ROOT / 'assets').exists() \
         else 'https://ultralytics.com/images/bus.jpg'
 
