@@ -45,67 +45,67 @@ if task_name == task_list[0]:
     style_selection = st.sidebar.selectbox("Choose your style:", style_list)
 
 
-    class VideoProcessor(VideoProcessorBase):
-        def __init__(self):
-            self.model_lock = threading.Lock()
-            self.model = YOLO('yolov8n.pt')
+    # class VideoProcessor(VideoProcessorBase):
+    #     def __init__(self):
+    #         self.model_lock = threading.Lock()
+    #         self.model = YOLO('yolov8n.pt')
 
-        def detect_objects(self, img):
-            # # Resize image to match the input size of the YOLO model
-            # img = cv2.resize(img, (416, 416))
+    #     def detect_objects(self, img):
+    #         # # Resize image to match the input size of the YOLO model
+    #         # img = cv2.resize(img, (416, 416))
 
-            # Convert image to input format expected by the YOLO model
-            img = img.astype(np.float32) / 255.0
-            img = np.expand_dims(img, axis=0)
-            # Run object detection using the YOLO model
-            preds = self.model.predict(img)
-        def recv(self, frame):
-            preds = frame.to_ndarray(format="bgr24")
-            # output_img = self.detect_objects(preds)
-            return av.VideoFrame.from_ndarray(output_img, format="bgr24")
-    ctx = webrtc_streamer(
-        key="object detection",
-        video_processor_factory=VideoProcessor,
-        rtc_configuration=RTC_CONFIGURATION,
-        media_stream_constraints={
-            "video": True,
-            "audio": False},async_processing=True)
+    #         # Convert image to input format expected by the YOLO model
+    #         img = img.astype(np.float32) / 255.0
+    #         img = np.expand_dims(img, axis=0)
+    #         # Run object detection using the YOLO model
+    #         preds = self.model.predict(img)
+    #     def recv(self, frame):
+    #         preds = frame.to_ndarray(format="bgr24")
+    #         # output_img = self.detect_objects(preds)
+    #         return av.VideoFrame.from_ndarray(output_img, format="bgr24")
+    # ctx = webrtc_streamer(
+    #     key="object detection",
+    #     video_processor_factory=VideoProcessor,
+    #     rtc_configuration=RTC_CONFIGURATION,
+    #     media_stream_constraints={
+    #         "video": True,
+    #         "audio": False},async_processing=True)
     # if ctx.video_processor:
     #     print('--------video start----------------')
     #     video_stream = ctx.video_transformer.update_style(style_selection)
 
 #-----------------------this code works for video streaming but not Yolo -------------------------
-#     class VideoProcessor(VideoProcessorBase):
-#         def __init__(self):
-#             self.model_lock = threading.Lock()
-#             self.style = style_list[0]
+    class VideoProcessor(VideoProcessorBase):
+        def __init__(self):
+            self.model_lock = threading.Lock()
+            self.style = style_list[0]
 
-#         def update_style(self, new_style):
-#             if self.style != new_style:
-#                 with self.model_lock:
-#                     self.style = new_style
+        def update_style(self, new_style):
+            if self.style != new_style:
+                with self.model_lock:
+                    self.style = new_style
 
-#         def recv(self, frame):
-#             # img = frame.to_ndarray(format="bgr24")
-#             img = frame.to_image()
-#             if self.style == style_list[1]:
-#                 img = img.convert("L")
+        def recv(self, frame):
+            # img = frame.to_ndarray(format="bgr24")
+            img = frame.to_image()
+            if self.style == style_list[1]:
+                img = img.convert("L")
 
-#             # return av.VideoFrame.from_ndarray(img, format="bgr24")
-#             return av.VideoFrame.from_image(img)
+            # return av.VideoFrame.from_ndarray(img, format="bgr24")
+            return av.VideoFrame.from_image(img)
 
-#     ctx = webrtc_streamer(
-#         key="example",
-#         video_processor_factory=VideoProcessor,
-#         rtc_configuration=RTC_CONFIGURATION,
-#         media_stream_constraints={
-#             "video": True,
-#             "audio": False}
-# )
+    ctx = webrtc_streamer(
+        key="example",
+        video_processor_factory=VideoProcessor,
+        rtc_configuration=RTC_CONFIGURATION,
+        media_stream_constraints={
+            "video": True,
+            "audio": False}
+)
 
-#     if ctx.video_processor:
-#         print('--------video start----------------')
-#         video_stream = ctx.video_transformer.update_style(style_selection)
+    if ctx.video_processor:
+        print('--------video start----------------')
+        video_stream = ctx.video_transformer.update_style(style_selection)
 
 #----------------------------------this code ends for video streaming ----------------------------
         # detectreferenceimages()
