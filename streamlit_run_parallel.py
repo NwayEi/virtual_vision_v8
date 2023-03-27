@@ -64,12 +64,12 @@ if task_name == task_list[0]:
             output_img = self.detect_objects(preds)
             return av.VideoFrame.from_ndarray(output_img, format="bgr24")
     ctx = webrtc_streamer(
-        key="example",
+        key="object detection",
         video_processor_factory=VideoProcessor,
         rtc_configuration=RTC_CONFIGURATION,
         media_stream_constraints={
             "video": True,
-            "audio": False})
+            "audio": False},async_processing=True)
     # if ctx.video_processor:
     #     print('--------video start----------------')
     #     video_stream = ctx.video_transformer.update_style(style_selection)
