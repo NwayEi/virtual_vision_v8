@@ -13,45 +13,25 @@ model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for
 
 
 def DetectReferenceImages():
-    #for i in range(80):
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
     print(f'-----------Person width : {ri.person_width_in_rf}')
 
-    result_cellphone= model.predict(source='ReferenceImages/cellphone.png')
-    ri.mobile_width_in_rf = result_cellphone[0].boxes.xywh[0][2]
-    print(f'-----------Cellphone width : {ri.mobile_width_in_rf}')
+    result_chair= model.predict(source='ReferenceImages/chair.jpeg')
+    ri.chair_width_in_rf = result_chair[0].boxes.xywh[0][2]
+    print(f'-----------Chair width : {ri.chair_width_in_rf}')
 
     result_handbag = model.predict(source='ReferenceImages/handbag.jpeg')
     ri.handbag_width_in_rf = result_handbag[0].boxes.xywh[0][2]
     print(f'-----------Handbag width : {ri.handbag_width_in_rf}')
 
-    result_mouse = model.predict(source='ReferenceImages/mouse.jpeg')
-    ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
-    print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
+    result_bench = model.predict(source='ReferenceImages/bench.jpeg')
+    ri.bench_width_in_rf = result_bench[0].boxes.xywh[0][2]
+    print(f'-----------Bench width : {ri.bench_width_in_rf}')
 
-
-def Detect():
-
-    result = model.predict(source='ReferenceImages/person.png')
-    ri.person_width_in_rf = result[0].boxes.xywh[0][2]
-    print(f'-----------Person width : {ri.person_width_in_rf}')
-
-    result_cellphone= model.predict(source='ReferenceImages/cellphone.png')
-    ri.mobile_width_in_rf = result_cellphone[0].boxes.xywh[0][2]
-    print(f'-----------Cellphone width : {ri.mobile_width_in_rf}')
-
-    result_handbag = model.predict(source='ReferenceImages/handbag.jpeg')
-    ri.handbag_width_in_rf = result_handbag[0].boxes.xywh[0][2]
-    print(f'-----------Handbag width : {ri.handbag_width_in_rf}')
-
-    result_mouse = model.predict(source='ReferenceImages/mouse.jpeg')
-    ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
-    print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
-
-    result_bottle = model.predict(source='ReferenceImages/bottle.jpeg')
-    ri.bottle_width_in_rf = result_bottle[0].boxes.xywh[0][2]
-    print(f'-----------Bottle width : {ri.bottle_width_in_rf}')
+    result_couch = model.predict(source='ReferenceImages/couch.jpeg')
+    ri.couch_width_in_rf = result_couch[0].boxes.xywh[0][2]
+    print(f'-----------Couch width : {ri.couch_width_in_rf}')
 
     result_backpack = model.predict(source='ReferenceImages/backpack.jpeg')
     ri.backpack_width_in_rf = result_backpack[0].boxes.xywh[0][2]
@@ -61,21 +41,27 @@ def Detect():
     ri.laptop_width_in_rf = result_laptop[0].boxes.xywh[0][2]
     print(f'-----------Laptop width : {ri.laptop_width_in_rf}')
 
+
+
+def Detect():
+
+    DetectReferenceImages()
     model.predict(source="0", show = True)
 
 def Speech():
     engine = pyttsx3.init()
     while True:
-
-        with open('/speech.txt') as f:
+        with open('speech.txt') as f:
             speech = f.readlines()
 
         f.close()
         newVoiceRate = 170
         engine.setProperty('rate',newVoiceRate)
-        engine.say(f'{speech}')
-        engine.runAndWait()
-        #time.sleep(3)
+
+        if speech != []:
+            engine.say(f'{speech}')
+            engine.runAndWait()
+        time.sleep(3)
 
 
 def SpeechStreamLit():
@@ -108,7 +94,7 @@ def stopProcess():
 if __name__ == '__main__':
 
   p1.start()
-  #p2.start()
+  p2.start()
   #time.sleep(30)
   #stopProcess()
  # p1.join()
