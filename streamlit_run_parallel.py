@@ -61,7 +61,7 @@ if task_name == task_list[0]:
             preds = self.model.predict(img)
         def recv(self, frame):
             preds = frame.to_ndarray(format="bgr24")
-            output_img = self.detect_objects(preds)
+            # output_img = self.detect_objects(preds)
             return av.VideoFrame.from_ndarray(output_img, format="bgr24")
     ctx = webrtc_streamer(
         key="object detection",
