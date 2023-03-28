@@ -42,36 +42,38 @@ if task_name == task_list[0]:
     style_selection = st.sidebar.selectbox("Choose your style:", style_list)
 
 
-    # class VideoProcessor(VideoProcessorBase):
-    #     def __init__(self):
-    #         self.model_lock = threading.Lock()
-    #         self.model = YOLO('yolov8n.pt')
+#     class VideoProcessor(VideoProcessorBase):
+#         def __init__(self):
+#             self.model_lock = threading.Lock()
+#             # self.model = YOLO('yolov8n.pt')
 
-    #     def detect_objects(self, img):
-    #         # # Resize image to match the input size of the YOLO model
-    #         # img = cv2.resize(img, (416, 416))
+#         def detect_objects(self, img):
+#             # # Resize image to match the input size of the YOLO model
+#             # img = cv2.resize(img, (416, 416))
 
-    #         # Convert image to input format expected by the YOLO model
-    #         img = img.astype(np.float32) / 255.0
-    #         img = np.expand_dims(img, axis=0)
-    #         # Run object detection using the YOLO model
-    #         preds = self.model.predict(img)
-    #     def recv(self, frame):
-    #         preds = frame.to_ndarray(format="bgr24")
-    #         # output_img = self.detect_objects(preds)
-    #         return av.VideoFrame.from_ndarray(output_img, format="bgr24")
-    # ctx = webrtc_streamer(
-    #     key="object detection",
-    #     video_processor_factory=VideoProcessor,
-    #     rtc_configuration=RTC_CONFIGURATION,
-    #     media_stream_constraints={
-    #         "video": True,
-    #         "audio": False},async_processing=True)
-    # if ctx.video_processor:
-    #     print('--------video start----------------')
-    #     video_stream = ctx.video_transformer.update_style(style_selection)
+#             # Convert image to input format expected by the YOLO model
+#             img = img.astype(np.float32) / 255.0
+#             img = np.expand_dims(img, axis=0)
+#             # Run object detection using the YOLO model
+#             # preds = self.model.predict(img)
+#         def recv(self, frame):
+#             preds = frame.to_ndarray(format="bgr24")
+#             output_img = self.detect_objects(preds)
+#             return av.VideoFrame.from_ndarray(output_img, format="bgr24")
+#     ctx = webrtc_streamer(
+#         key="object detection",
+#         video_processor_factory=VideoProcessor,
+#         rtc_configuration=RTC_CONFIGURATION,
+#         media_stream_constraints={
+#             "video": True,
+#             "audio": False},async_processing=True)
+#     if ctx.video_processor:
+#         print('--------video start----------------')
+#         video_stream = ctx.video_transformer
+#         #model.predict(source=video_stream,show = True)
 
-#-----------------------this code works for video streaming but not Yolo -------------------------
+# model.predict(source=ctx, show = True)
+# #-----------------------this code works for video streaming but not Yolo -------------------------
     class VideoProcessor(VideoProcessorBase):
         def __init__(self):
             self.model_lock = threading.Lock()
