@@ -14,7 +14,7 @@ import queue
 import subprocess
 import threading
 
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfiguration
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfiguration,VideoHTMLAttributes
 
 # st.set_page_config( layout="wide" )
 # logger = logging.getLogger( __name__ )
@@ -24,9 +24,6 @@ model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for
 RTC_CONFIGURATION = RTCConfiguration(
     {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
 )
-
-
-
 
 
 st.set_page_config(page_title="Streamlit WebRTC Demo", page_icon="🤖")
@@ -86,7 +83,7 @@ if task_name == task_list[0]:
                     self.style = new_style
 
         def recv(self, frame):
-            # img = frame.to_ndarray(format="bgr24")
+            img = frame.to_ndarray(format="bgr24")
             img = frame.to_image()
             if self.style == style_list[1]:
                 img = img.convert("L")
@@ -95,8 +92,8 @@ if task_name == task_list[0]:
             return av.VideoFrame.from_image(img)
 
     ctx = webrtc_streamer(
-        key="example",
-        video_processor_factory=VideoProcessor,
+        key= "object detection",
+        video_html_attrs= VideoHTMLAttributes(autoplay=True,controls=True),      video_processor_factory=VideoProcessor,
         rtc_configuration=RTC_CONFIGURATION,
         media_stream_constraints={
             "video": True,
