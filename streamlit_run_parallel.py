@@ -1,6 +1,6 @@
 from multiprocessing import Process
 from ultralytics import YOLO
-from gtts import gTTS
+# from gtts import gTTS
 import ReferenceImageVal as ri
 import signal
 import streamlit as st
