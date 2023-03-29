@@ -1,6 +1,7 @@
+import multiprocessing as mp
 from multiprocessing import Process
 from ultralytics import YOLO
-from gtts import gTTS
+# from gtts import gTTS
 import ReferenceImageVal as ri
 import signal
 import streamlit as st
@@ -10,10 +11,10 @@ import subprocess
 import os
 import pyttsx3
 import time
+import threading
 
-
+processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-
 
 #-------------------------------------------------v1 for streamlit--------------------------------------------------------
 
@@ -43,7 +44,8 @@ st.title('YOLOv8 Streamlit App')
 source = ("Image", "Video")
 source_index = st.sidebar.selectbox("Select Input type", range(
     len(source)), format_func=lambda x: source[x])
-
+start_yolo = st.button('Detect')
+stop_yolo = st.button('Stop')
 # if source_index == 0:
 #     uploaded_file = st.sidebar.file_uploader(
 #         "Load File", type=['png', 'jpeg', 'jpg'])
@@ -68,39 +70,59 @@ if uploaded_file is not None:
 else:
     is_valid = False
 
-def autoplay_audio(file_path: str):
-    with open(file_path, "rb") as f:
-        data = f.read()
-        b64 = base64.b64encode(data).decode()
-        md = f"""
-            <audio controls autoplay="true">
-            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-            </audio>
-            """
-        st.markdown(
-            md,
-            unsafe_allow_html=True,
-        ).write("# Auto-playing Audio!")
-
 
 def detect(source):
-    model.predict(source = source)
+    results = model.predict(source = source)
+
+def speech():
+    engine = pyttsx3.init()
+    newVoiceRate = 170
+    engine.setProperty('rate', newVoiceRate)
+
+    while True:
+        speech_file = open('speech.txt', 'r')
+        speech_text = speech_file.read().strip()
+        speech_file.close()
+
+        if speech_text != '':
+            engine.say(speech_text)
+            engine.runAndWait()
+
+        # Process the result here...
+
+        time.sleep(3)
+
+def stop_process(self):
+    self.kill
+    signal.SIGINT
 
 if is_valid:
     print('valid')
     print(video_source)
 
-    if st.button('Detect'):
-        print('--------------model predict started-----------------')
-        p1 = Process(target = detect(video_source))
+
+    # p1 = Process(target = detect, args=(video_source,))
+    # p2= Process(target =speech)
+    if start_yolo:
+        p1 = Process(target=detect, args=(video_source,))
         p1.start()
-        print('--------------model predict ended-----------------')
-        # print('-------------------speech started-----------------------')
-        # p2 = Process(target= speech)
-        # p2.start()
-        # print('-------------------speech ended----------------------')
 
 
+        p2 = Process(target=speech)
+        p2.start()
+
+        p1.join()
+        p2.join()
+
+        processes.extend([p1,p2])
+
+    if stop_yolo and processes:
+        stop_process(*processes)
+        processes.clear()
+
+
+
+#
 
     #
         #         with rd.stderr(format='markdown', to=st.sidebar), st.spinner('Wait for it...'):
