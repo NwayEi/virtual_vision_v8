@@ -1,6 +1,6 @@
 from multiprocessing import Process
 from ultralytics import YOLO
-# from gtts import gTTS
+from gtts import gTTS
 import ReferenceImageVal as ri
 import signal
 import streamlit as st
@@ -68,25 +68,21 @@ if uploaded_file is not None:
 else:
     is_valid = False
 
+def autoplay_audio(file_path: str):
+    with open(file_path, "rb") as f:
+        data = f.read()
+        b64 = base64.b64encode(data).decode()
+        md = f"""
+            <audio controls autoplay="true">
+            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+            </audio>
+            """
+        st.markdown(
+            md,
+            unsafe_allow_html=True,
+        ).write("# Auto-playing Audio!")
 
-# def speech():
-#     print('---------------speech func started------------------')
-#     engine = pyttsx3.init()
 
-#     while True:
-
-#         with open('speech.txt') as f:
-#             speech = f.readlines()
-#         f.close()
-#         newVoiceRate = 170
-#         engine.setProperty('rate',newVoiceRate)
-
-#         if speech != []:
-#             engine.say(f'{speech}')
-#             engine.runAndWait()
-#         time.sleep(3)
-
-#         print('---------------speech func ended--------------------------')
 def detect(source):
     model.predict(source = source)
 
@@ -248,6 +244,24 @@ if is_valid:
 
 # # #autoplay_audio("local_audio.mp3")
 
+# def speech():
+#     print('---------------speech func started------------------')
+#     engine = pyttsx3.init()
+
+#     while True:
+
+#         with open('speech.txt') as f:
+#             speech = f.readlines()
+#         f.close()
+#         newVoiceRate = 170
+#         engine.setProperty('rate',newVoiceRate)
+
+#         if speech != []:
+#             engine.say(f'{speech}')
+#             engine.runAndWait()
+#         time.sleep(3)
+
+#         print('---------------speech func ended--------------------------')
 
 #----------------------------end code for audio file retrieval ---------------------------------------------------------------
 

@@ -6,7 +6,7 @@ from ultralytics.yolo.engine.predictor import BasePredictor
 from ultralytics.yolo.engine.results import Results
 from ultralytics.yolo.utils import DEFAULT_CFG, ROOT, ops
 from ultralytics.yolo.utils.plotting import Annotator, colors, save_one_box
-# from gtts import gTTS
+from gtts import gTTS
 import ReferenceImageVal as rf
 new_text =''
 old_text = ''
@@ -183,11 +183,11 @@ class DetectionPredictor(BasePredictor):
             a = file.write(self.new_text)
             file.close()
 
-            # #Generate mp3 file
-            # gtts = gTTS(self.new_text, lang='en')
-            # gtts.save('myaudio.mp3')
+            #Generate mp3 file
+            gtts = gTTS(self.new_text, lang='en')
+            gtts.save('myaudio.mp3')
 
-            #reset the text
+            reset the text
             self.new_text = ''
 
         # write
