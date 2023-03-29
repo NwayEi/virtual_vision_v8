@@ -187,7 +187,7 @@ class DetectionPredictor(BasePredictor):
             gtts = gTTS(self.new_text, lang='en')
             gtts.save('myaudio.mp3')
 
-            reset the text
+            #reset the text
             self.new_text = ''
 
         # write
