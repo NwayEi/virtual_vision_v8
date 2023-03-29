@@ -10,107 +10,179 @@ import logging
 import cv2
 from component import FrameCounter
 import av
-import queue
 import subprocess
+import os
+from ultralytics.yolo.data.dataloaders.stream_loaders import LOADERS,LoadImages
+import redirect as rd
+from pathlib import Path
+import streamlit as st
+from PIL import Image
+import subprocess
+import os
+import pyttsx3
+import time
 import threading
+import keyboard
 
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfiguration,VideoHTMLAttributes
 
-# st.set_page_config( layout="wide" )
-# logger = logging.getLogger( __name__ )
-video_stream= None
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-# start_run = st.button('start_yolo')
-RTC_CONFIGURATION = RTCConfiguration(
-    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-)
 
 
-st.set_page_config(page_title="Streamlit WebRTC Demo", page_icon="🤖")
-task_list = ["Video Stream"]
+#-------------------------------------------------v1 for streamlit--------------------------------------------------------
 
-with st.sidebar:
-    st.title('Task Selection')
-    task_name = st.selectbox("Select your tasks:", task_list)
-st.title(task_name)
+def check_folders():
+    paths = {
+        'data_path' : 'data',
+        'images_path' : 'data/images',
+        'videos_path' : 'data/videos'
 
-if task_name == task_list[0]:
+    }
+    # Check whether the specified path exists or not
+    notExist = list(({file_type: path for (file_type, path) in paths.items() if not os.path.exists(path)}).values())
 
-    style_list = ['color', 'black and white']
+    if notExist:
+        print(f'Folder {notExist} does not exist. We will created')
+        # Create a new directory because it does not exist
+        for folder in notExist:
+            os.makedirs(folder)
+            print(f"The new directory {folder} is created!")
 
-    st.sidebar.header('Style Selection')
-    style_selection = st.sidebar.selectbox("Choose your style:", style_list)
 
 
-#     class VideoProcessor(VideoProcessorBase):
-#         def __init__(self):
-#             self.model_lock = threading.Lock()
-#             # self.model = YOLO('yolov8n.pt')
+check_folders()
 
-#         def detect_objects(self, img):
-#             # # Resize image to match the input size of the YOLO model
-#             # img = cv2.resize(img, (416, 416))
+st.title('YOLOv8 Streamlit App')
 
-#             # Convert image to input format expected by the YOLO model
-#             img = img.astype(np.float32) / 255.0
-#             img = np.expand_dims(img, axis=0)
-#             # Run object detection using the YOLO model
-#             # preds = self.model.predict(img)
-#         def recv(self, frame):
-#             preds = frame.to_ndarray(format="bgr24")
-#             output_img = self.detect_objects(preds)
-#             return av.VideoFrame.from_ndarray(output_img, format="bgr24")
-#     ctx = webrtc_streamer(
-#         key="object detection",
-#         video_processor_factory=VideoProcessor,
-#         rtc_configuration=RTC_CONFIGURATION,
-#         media_stream_constraints={
-#             "video": True,
-#             "audio": False},async_processing=True)
-#     if ctx.video_processor:
-#         print('--------video start----------------')
-#         video_stream = ctx.video_transformer
-#         #model.predict(source=video_stream,show = True)
+source = ("Image", "Video")
+source_index = st.sidebar.selectbox("Select Input type", range(
+    len(source)), format_func=lambda x: source[x])
 
-# model.predict(source=ctx, show = True)
-# #-----------------------this code works for video streaming but not Yolo -------------------------
-    class VideoProcessor(VideoProcessorBase):
-        def __init__(self):
-            self.model_lock = threading.Lock()
-            self.style = style_list[0]
+# if source_index == 0:
+#     uploaded_file = st.sidebar.file_uploader(
+#         "Load File", type=['png', 'jpeg', 'jpg'])
+#     if uploaded_file is not None:
+#         is_valid = True
+#         with st.spinner(text='Loading...'):
+#             st.sidebar.image(uploaded_file)
+#             picture = Image.open(uploaded_file)
+#             picture = picture.save(f'data/images/{uploaded_file.name}')
+#             img_source = f'data/images/{uploaded_file.name}'
+#     else:
+#         is_valid = False
+# else:
+uploaded_file = st.sidebar.file_uploader("Upload Video", type=['mp4'])
+if uploaded_file is not None:
+    is_valid = True
+    with st.spinner(text='Loading...'):
+        st.sidebar.video(uploaded_file)
+        with open(os.path.join("data", "videos", uploaded_file.name), "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        video_source = f'data/videos/{uploaded_file.name}'
+else:
+    is_valid = False
 
-        def update_style(self, new_style):
-            if self.style != new_style:
-                with self.model_lock:
-                    self.style = new_style
 
-        def recv(self, frame):
-            img = frame.to_ndarray(format="bgr24")
-            img = frame.to_image()
-            if self.style == style_list[1]:
-                img = img.convert("L")
+def speech():
+    print('---------------speech func started------------------')
+    engine = pyttsx3.init()
 
-            # return av.VideoFrame.from_ndarray(img, format="bgr24")
-            return av.VideoFrame.from_image(img)
+    while True:
 
-    ctx = webrtc_streamer(
-        key= "object detection",
-        video_html_attrs= VideoHTMLAttributes(autoplay=True,controls=True),      video_processor_factory=VideoProcessor,
-        rtc_configuration=RTC_CONFIGURATION,
-        media_stream_constraints={
-            "video": True,
-            "audio": False}
-)
+        with open('speech.txt') as f:
+            speech = f.readlines()
+        f.close()
+        newVoiceRate = 170
+        engine.setProperty('rate',newVoiceRate)
 
-    if ctx.video_processor:
-        print('--------video start----------------')
-        video_stream = ctx.video_transformer.update_style(style_selection)
+        if speech != []:
+            engine.say(f'{speech}')
+            engine.runAndWait()
+        time.sleep(3)
 
-#----------------------------------this code ends for video streaming ----------------------------
-        # detectreferenceimages()
-        # print('-------------------detect start------------------------')
-        # model.predict(source=video_stream, show = )
-        # print('-------------------predict start------------------------')
+        print('---------------speech func ended--------------------------')
+def detect(source):
+    model.predict(source = source)
+
+
+
+
+if is_valid:
+    print('valid')
+    print(video_source)
+
+    if st.button('Detect'):
+        print('--------------model predict started-----------------')
+        p1 = Process(target = detect(video_source))
+        p1.start()
+        print('--------------model predict ended-----------------')
+        print('-------------------speech started-----------------------')
+
+        p2 = Process(target= speech)
+        p2.start()
+        print('-------------------speech ended----------------------')
+
+
+
+    #
+        #         with rd.stderr(format='markdown', to=st.sidebar), st.spinner('Wait for it...'):
+                    # if source_index ==0:
+                        # predict_source =
+                        # result1 = model.predict(source=img_source, show=True)
+                        # print(subprocess.run(['yolo', 'task=detect', 'mode=predict', 'model=yolov8n.pt', 'conf=0.25', 'source=img_source'],capture_output=True, universal_newlines=True).stderr)
+
+                    # elif source_index ==1:
+                        # result2 = (model.predict(source=video_source, show=True)
+                        # print(subprocess.run(['yolo', 'task=detect', 'mode=predict', 'model=yolov8n.pt', 'conf=0.25', 'source=video_source'],capture_output=True, universal_newlines=True).stderr)
+
+
+
+#--------------------------------------------------v1 for streamlit ended-------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+# -----------------------------------v2 streamlit start-----------------------------------------
+# cfg_model_path = "ultralytics/yolo/engine/models/'yolov8n.pt'"
+
+# def videoinput():
+#     uploaded_video = st.file_uploader("Upload Video", type=['mp4', 'mpeg', 'mov'])
+#     if uploaded_video != None:
+
+#         imgpath = os.path.join('data/videos', uploaded_video.name)
+#         outputpath = os.path.join('data/output', os.path.basename(imgpath))
+
+#         with open(imgpath, mode='wb') as f:
+#             f.write(uploaded_video.read())  # save video to disk
+
+#         st_video = open(imgpath, 'rb')
+#         video_bytes = st_video.read()
+#         st.video(video_bytes)
+#         st.write("Uploaded Video")
+#         model.predict (source = imgpath)
+#         st_video2 = open(outputpath, 'rb')
+#         video_bytes2 = st_video2.read()
+#         st.video(video_bytes2)
+#         st.write("Model Prediction")
+
+# def main():
+
+#     option = st.sidebar.radio("Select input type.", ['Image', 'Video'])
+
+#     st.header('Obstacle Detection')
+#     st.subheader('Select options left-haned menu bar.')
+#     # if option == "Image"
+#     #     imageInput(deviceoption, datasrc)
+#     if option == "Video":
+#         videoinput()
+# if __name__ == '__main__':
+#     main()
+#-----------------------------------v2 for streamlit end-----------------------------------#
 
 # def detectreferenceimages(self):
 #             #for i in range(80):
@@ -129,91 +201,38 @@ if task_name == task_list[0]:
 #             result_mouse = self.model.predict(source='ReferenceImages/mouse.jpeg')
 #             ri.mouse_width_in_rf = result_mouse[0].boxes.xywh[0][2]
 #             print(f'-----------Mouse width : {ri.mouse_width_in_rf}')
-# def live_object_detection():
+#
 
-#     # weight, confidence_threshold, track_age, track_hits, iou_thres = variables.get_var()
 
-#       # init frame counter, object detector, tracker and passing object counter
-#     frame_num = FrameCounter()
-#     detector = detect()
-#     print ('-----------------------------in midst of running detection----------------------')
-#     if 'counters' not in st.session_state:
-#         st.session_state.counters = []
-#     icounter = st.session_state.counters
 
-#     # Dump queue for real time detection result
-#     # result_queue = (queue.Queue())
-#     # frame_queue = (queue.Queue( maxsize=1 ))
+# p1 = Process(target= Detect)
+# p2 = Process(target= autoplay_audio('myaudio.mp3'))
 
-#     # reading each frame of live stream and passing to backend processing
-#     def frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
-#         frame = frame.to_ndarray( format="bgr24" )
+# def stopProcess():
+#     p1.kill()
+#     p2.kill()
+#     print('--------------EXIT START------------------')
+#     signal.SIGINT
+#     print('--------------EXIT END------------------')
 
-#         # # Detect, track and counter the intersect of objects here
-#         # image, result = deepsort_tracker.track_video_stream( frame, frame_num( 1 ) )
-#         # if icounter is not None:
-#         #     if len( icounter ) > 0:
-#         #         image = st_icounter.update_counters( deepsort_tracker.tracker.tracks, image, icounter )
+# if __name__ == '__main__':
 
-#         # NOTE: This `recv` method is called in another thread,
-#         # so it must be thread-safe.
-#         # result_queue.put( result )
-#         # if not frame_queue.full():
-#         #     frame_queue.put( frame )
-
-#         return av.VideoFrame.from_ndarray(frame, format="bgr24" )
-#         print ('--------------------------------is this needed?-------------------------------------')
-
-#     RTC_CONFIGURATION = RTCConfiguration( {"iceServers": servers} )
-#     webrtc_ctx = webrtc_streamer(
-#         key="object-detection",
-#         mode=WebRtcMode.SENDRECV,
-#         rtc_configuration=RTC_CONFIGURATION,  # when deploy on remote host need stun server for camera connection
-#         video_frame_callback=frame_callback,
-#         media_stream_constraints={"video": True, "audio": False},
-#         async_processing=True,
-#         )
-
-#     # capture image for the counter setup container
-#     if webrtc_ctx.state.playing:
-#         # image = frame_queue.get()
-#         # st_icounter = ic.st_IntersectCounter( image, image.shape[1], image.shape[0] )
-#         icounter = st.session_state.counters
-#         if len( st.session_state.counters ) > 0:
-#             st.session_state.counted = True
-#         labels_placeholder = st.empty()
-
-#         # NOTE: The video transformation with object detection and
-#         # this loop displaying the result labels are running
-#         # in different threads asynchronously.
-#         # Then the rendered video frames and the labels displayed here
-#         # are not strictly synchronized.
-#         # while True:
-#         #     try:
-#         #         result = result_queue.get( timeout=1.0 )
-#         #         labels_placeholder.dataframe( session_result.result_to_df( result ), use_container_width=True )
-#         #     except queue.Empty:
-#         #         result = None
-#             # if st_icounter is not None:
-#             #     st_icounter.show_counter_results()
-
-#     else:
-#         st.session_state.counters = []
-#         st.session_state.counters_table = []
-#         st.session_state.counted = False
-#         st.session_state.result_list = []
+#   p1.start()
+#   p2.start()
+#   #time.sleep(30)
+#   #stopProcess()
+#  # p1.join()
+#  # p2.join()
 
 
 
 
 
-    # results = subprocess.run(['yolo', 'task=detect', 'mode=predict', 'model=yolov8n.pt', 'conf=0.25', 'source=0'],capture_output=True, universal_newlines=True).stderr
 
 
-# if start_run:
-#     live_object_detection()
 
-#     print('---------------start running--------------------')
+#--------------------------------code for audio file retrieval ---------------------------------------------------------------
+
 # def speechstreamlit():
 #     audio_file = open('myaudio.mp3', 'rb')
 #     audio_bytes = audio_file.read()
@@ -246,44 +265,65 @@ if task_name == task_list[0]:
 
 # # #autoplay_audio("local_audio.mp3")
 
-# p1 = Process(target= Detect)
-# p2 = Process(target= autoplay_audio('myaudio.mp3'))
 
-# def stopProcess():
-#     p1.kill()
-#     p2.kill()
-#     print('--------------EXIT START------------------')
-#     signal.SIGINT
-#     print('--------------EXIT END------------------')
-
-# if __name__ == '__main__':
-
-#   p1.start()
-#   p2.start()
-#   #time.sleep(30)
-#   #stopProcess()
-#  # p1.join()
-#  # p2.join()
+#----------------------------end code for audio file retrieval ---------------------------------------------------------------
 
 
-# if __name__ == "__main__":
 
+# #-----------------------this code works for video streaming but not Yolo -------------------------
+# import threading
 
-#     # DEBUG = config.DEBUG
+# from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, RTCConfiguration,VideoHTMLAttributes
 
-#     # if DEBUG:
-#     #     logging.basicConfig(
-#     #         format="[%(asctime)s] %(levelname)7s from %(name)s in %(pathname)s:%(lineno)d: "
-#     #                "%(message)s",
-#     #         force=True,
-#     #     )
+# RTC_CONFIGURATION = RTCConfiguration(
+#     {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+# )
 
-#     #     logger.setLevel( level=logging.DEBUG if DEBUG else logging.INFO )
+# st.set_page_config(page_title="Streamlit WebRTC Demo", page_icon="🤖")
+# task_list = ["Video Stream"]
 
-#     #     st_webrtc_logger = logging.getLogger( "streamlit_webrtc" )
-#     #     st_webrtc_logger.setLevel( logging.DEBUG )
+# with st.sidebar:
+#     st.title('Task Selection')
+#     task_name = st.selectbox("Select your tasks:", task_list)
+# st.title(task_name)
 
-#     #     fsevents_logger = logging.getLogger( "fsevents" )
-#     #     fsevents_logger.setLevel( logging.WARNING )
+# if task_name == task_list[0]:
 
-#     main()
+#     style_list = ['color', 'black and white']
+
+#     st.sidebar.header('Style Selection')
+#     style_selection = st.sidebar.selectbox("Choose your style:", style_list)
+
+#     class VideoProcessor(VideoProcessorBase):
+#         def __init__(self):
+#             self.model_lock = threading.Lock()
+#             self.style = style_list[0]
+
+#         def update_style(self, new_style):
+#             if self.style != new_style:
+#                 with self.model_lock:
+#                     self.style = new_style
+
+#         def recv(self, frame):
+#             img = frame.to_ndarray(format="bgr24")
+#             img = frame.to_image()
+#             if self.style == style_list[1]:
+#                 img = img.convert("L")
+
+#             # return av.VideoFrame.from_ndarray(img, format="bgr24")
+#             return av.VideoFrame.from_image(img)
+
+#     ctx = webrtc_streamer(
+#         key= "object detection",
+#         video_html_attrs= VideoHTMLAttributes(autoplay=True,controls=True),      video_processor_factory=VideoProcessor,
+#         rtc_configuration=RTC_CONFIGURATION,
+#         media_stream_constraints={
+#             "video": True,
+#             "audio": False}
+# )
+
+#     if ctx.video_processor:
+#         print('--------video start----------------')
+#         video_stream = ctx.video_transformer.update_style(style_selection)
+
+#----------------------------------this code ends for video streaming ----------------------------
