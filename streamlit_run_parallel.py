@@ -12,6 +12,7 @@ import os
 import pyttsx3
 import time
 import threading
+import logging
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
@@ -72,9 +73,12 @@ else:
 
 
 def detect(source):
+    logging.warning ('----------model  prediction start------------------')
     results = model.predict(source = source)
+    logging.warning ('----------model  prediction start------------------')
 
 def speech():
+    logging.warning ('----------speech start------------------')
     engine = pyttsx3.init()
     newVoiceRate = 170
     engine.setProperty('rate', newVoiceRate)
@@ -92,9 +96,10 @@ def speech():
         # Process the result here...
 
         time.sleep(3)
+        logging.warning ('----------speech end------------------')
 
 def stop_process(self):
-    self.kill
+    self.kill()
     signal.SIGINT
 
 if is_valid:
@@ -105,16 +110,17 @@ if is_valid:
     # p1 = Process(target = detect, args=(video_source,))
     # p2= Process(target =speech)
     if start_yolo:
+        logging.warning('-----------------yolo start---------------------')
         p1 = Process(target=detect, args=(video_source,))
         p1.start()
 
-
+        logging.warning('---------------yolo speech start-------------------------')
         p2 = Process(target=speech)
         p2.start()
 
         p1.join()
         p2.join()
-
+        logging.warnng ('-----------------------yolo stop-----------------------------')
         processes.extend([p1,p2])
 
     if stop_yolo and processes:
