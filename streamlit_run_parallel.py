@@ -80,9 +80,10 @@ def speech():
     engine.setProperty('rate', newVoiceRate)
 
     while True:
-        speech_file = open('speech.txt', 'r')
-        speech_text = speech_file.read().strip()
-        speech_file.close()
+        with open(os.path.join('speech.txt'), 'r') as f:
+        # speech_file = open('speech.txt', 'r')
+            speech_text = f.read().strip()
+            f.close()
 
         if speech_text != '':
             engine.say(speech_text)
