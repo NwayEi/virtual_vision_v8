@@ -69,24 +69,24 @@ else:
     is_valid = False
 
 
-def speech():
-    print('---------------speech func started------------------')
-    engine = pyttsx3.init()
+# def speech():
+#     print('---------------speech func started------------------')
+#     engine = pyttsx3.init()
 
-    while True:
+#     while True:
 
-        with open('speech.txt') as f:
-            speech = f.readlines()
-        f.close()
-        newVoiceRate = 170
-        engine.setProperty('rate',newVoiceRate)
+#         with open('speech.txt') as f:
+#             speech = f.readlines()
+#         f.close()
+#         newVoiceRate = 170
+#         engine.setProperty('rate',newVoiceRate)
 
-        if speech != []:
-            engine.say(f'{speech}')
-            engine.runAndWait()
-        time.sleep(3)
+#         if speech != []:
+#             engine.say(f'{speech}')
+#             engine.runAndWait()
+#         time.sleep(3)
 
-        print('---------------speech func ended--------------------------')
+#         print('---------------speech func ended--------------------------')
 def detect(source):
     model.predict(source = source)
 
@@ -99,10 +99,10 @@ if is_valid:
         p1 = Process(target = detect(video_source))
         p1.start()
         print('--------------model predict ended-----------------')
-        print('-------------------speech started-----------------------')
-        p2 = Process(target= speech)
-        p2.start()
-        print('-------------------speech ended----------------------')
+        # print('-------------------speech started-----------------------')
+        # p2 = Process(target= speech)
+        # p2.start()
+        # print('-------------------speech ended----------------------')
 
 
 
