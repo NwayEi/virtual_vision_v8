@@ -6,23 +6,10 @@ import signal
 import streamlit as st
 import numpy as np
 import base64
-import logging
-import cv2
-from component import FrameCounter
-import av
-import subprocess
-import os
-from ultralytics.yolo.data.dataloaders.stream_loaders import LOADERS,LoadImages
-import redirect as rd
-from pathlib import Path
-import streamlit as st
-from PIL import Image
 import subprocess
 import os
 import pyttsx3
 import time
-import threading
-import keyboard
 
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
@@ -103,9 +90,6 @@ def speech():
 def detect(source):
     model.predict(source = source)
 
-
-
-
 if is_valid:
     print('valid')
     print(video_source)
@@ -116,7 +100,6 @@ if is_valid:
         p1.start()
         print('--------------model predict ended-----------------')
         print('-------------------speech started-----------------------')
-
         p2 = Process(target= speech)
         p2.start()
         print('-------------------speech ended----------------------')
