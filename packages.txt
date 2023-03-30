@@ -2,3 +2,9 @@ freeglut3-dev
 libgtk2.0-dev
 libgl1-mesa-glx
 libespeak1
+portaudio19-dev
+python3-all-dev
+libasound-dev
+libportaudio2
+libportaudiocpp0
+ffmpeg libav-tools
