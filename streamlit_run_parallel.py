@@ -103,10 +103,10 @@ def DetectReferenceImages():
 
 
 
-def Detect():
+# def Detect():
 
-    DetectReferenceImages()
-    model.predict(source="0", show = True)
+#     DetectReferenceImages()
+#     model.predict(source="0", show = True)
 
 def Speech():
     engine = pyttsx3.init()
@@ -123,19 +123,19 @@ def Speech():
             engine.runAndWait()
         time.sleep(3)
 
-def detect(source):
+def detect_uploaded_video(source):
     logging.warning ('----------model  prediction start------------------')
     results = model.predict(source = source)
     logging.warning ('----------model  prediction start------------------')
 
-def speech():
+def speech_uploaded_video():
     logging.warning ('----------speech start------------------')
     engine = pyttsx3.init()
     newVoiceRate = 170
     engine.setProperty('rate', newVoiceRate)
 
     while True:
-        with open(os.path.join('speech.txt'), 'r') as f:
+        with open('speech.txt', 'r') as f:
         # speech_file = open('speech.txt', 'r')
             print(f'--------------Reading File {f.read().strip()}')
             speech_text = f.read().strip()
@@ -150,10 +150,10 @@ def speech():
         time.sleep(3)
         logging.warning ('----------speech end------------------')
 
-def stop_process(self):
-    self.kill()
-p1 = Process(target= Detect)
-p2 = Process(target= Speech)
+# def stop_process(self):
+#     self.kill()
+# p1 = Process(target= Detect)
+# p2 = Process(target= Speech)
 
 def stopProcess():
     p1.kill()
@@ -170,11 +170,11 @@ if is_valid:
     # p2= Process(target =speech)
     if start_yolo:
         logging.warning('-----------------yolo start---------------------')
-        p1 = Process(target=detect, args=(video_source,))
+        p1 = Process(target=detect_uploaded_video, args=(video_source,))
         p1.start()
 
         logging.warning('---------------yolo speech start-------------------------')
-        p2 = Process(target=speech)
+        p2 = Process(target=speech_uploaded_video)
         p2.start()
 
         p1.join()
@@ -183,7 +183,7 @@ if is_valid:
         processes.extend([p1,p2])
 
     if stop_yolo and processes:
-        stop_process(*processes)
+        #stop_process(*processes)
         processes.clear()
 
 
