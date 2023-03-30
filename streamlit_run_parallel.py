@@ -197,7 +197,7 @@ def autoplay_audio(file_path: str):
 
 
 
-st.audio(sound_file,autoplay=True)
+st.audio(sound_file)
 # def stop_process(self):
 #     self.kill()
 # p1 = Process(target= Detect)
