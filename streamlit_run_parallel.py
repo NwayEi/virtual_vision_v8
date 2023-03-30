@@ -39,12 +39,6 @@ def check_folders():
             os.makedirs(folder)
             print(f"The new directory {folder} is created!")
 
-#sound_file = BytesIO()
-#new_sound_file = BytesIO()
-#tts = gTTS('This is testing audio text', lang='en')
-#tts.write_to_fp(sound_file)
-
-#st.audio(sound_file)
 
 check_folders()
 
@@ -110,27 +104,6 @@ def DetectReferenceImages():
     print(f'-----------Laptop width : {ri.laptop_width_in_rf}')
 
 
-
-# def Detect():
-
-#     DetectReferenceImages()
-#     model.predict(source="0", show = True)
-
-# def Speech():
-#     engine = pyttsx3.init()
-#     while True:
-
-#         with open('speech.txt') as f:
-#             speech = f.readlines()
-#         f.close()
-#         newVoiceRate = 170
-#         engine.setProperty('rate',newVoiceRate)
-
-#         if speech != []:
-#             engine.say(f'{speech}')
-#             engine.runAndWait()
-#         time.sleep(3)
-
 def detect_uploaded_video(source):
     logging.warning ('----------START model  prediction------------------')
     results = model.predict(source = source)
@@ -138,10 +111,6 @@ def detect_uploaded_video(source):
 
 def speech_uploaded_video():
 
-    logging.warning ('----------speech start------------------')
-    engine = pyttsx3.init()
-    newVoiceRate = 170
-    engine.setProperty('rate', newVoiceRate)
     logging.warning(f'--------------START Reading File ----------')
     file = open('speech.txt','r')
     speech_text = file.read().strip()
@@ -149,41 +118,7 @@ def speech_uploaded_video():
 
     logging.warning(f'--------------END Reading File ----------{speech_text}')
 
-
-    #tts = gTTS('this is inside speech uploaded video text', lang='en')
-    #tts.write_to_fp(sound_file)
-    #is_gtts = True
-
-
-
-        #if speech_text != '':
-            #text_to_speech(speech_text)
-            #engine.say(speech_text)
-            #engine.runAndWait()
-
-         #Process the result here...
-
-    time.sleep(3)
-    logging.warning ('----------speech end------------------')
-
-
-
-def text_to_speech(text):
-
-    logging.warning ('----------START Text to speech ------------------')
-    #gtts = gTTS(text, lang='en')
-    #gtts.save('testspeech.mp3')
-    #audio_file = open('myaudio.mp3','rb')
-    #audio_bytes = audio_file.read()
-    #st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
-
-    sound_file = BytesIO()
-    tts = gTTS(text, lang='en')
-    tts.write_to_fp(sound_file)
-
-
-    logging.warning ('----------END Text to speech ------------------')
-
+    return speech_text
 
 def autoplay_audio(file_path: str):
      with open(file_path, "rb") as f:
@@ -200,57 +135,37 @@ def autoplay_audio(file_path: str):
          ).write("# Auto-playing Audio!")
 
 
-##audio_file = open('myaudio.mp3', 'rb')
-#audio_bytes = audio_file.read()
-
-
-
 # def stop_process(self):
 #     self.kill()
 # p1 = Process(target= Detect)
 # p2 = Process(target= Speech)
 
-def stopProcess():
-    p1.kill()
-    p2.kill()
-    print('--------------EXIT START------------------')
-    signal.SIGINT
+#def stopProcess():
+ #   p1.kill()
+ #   p2.kill()
+ #   print('--------------EXIT START------------------')
+ #   signal.SIGINT
 
 if is_valid:
     print('valid')
     print(video_source)
 
 
+if start_yolo:
+    logging.warning('-----------------yolo video prediction start---------------------')
+    detect_uploaded_video(video_source)
+    text = speech_uploaded_video()
 
-    # p1 = Process(target = detect, args=(video_source,))
-    # p2= Process(target =speech)
-    if start_yolo:
-        logging.warning('-----------------P1 yolo start---------------------')
-        #p1 = Process(target=detect_uploaded_video, args=(video_source,))
-        p1 = Process(target=DetectReferenceImages, args=(video_source,))
-        p1.start()
+    sound_file = BytesIO()
+    tts = gTTS(text, lang='en')
+    tts.write_to_fp(sound_file)
+    st.audio(sound_file)
 
-        logging.warning('---------------P2 yolo speech start-------------------------')
-        p2 = Process(target=speech_uploaded_video)
-        p2.start()
+    logging.warning ('-----------------------Audio END-----------------------------')
 
-        p1.join()
-        p2.join()
-        logging.warning ('-----------------------Process END-----------------------------')
-        #processes.extend([p1,p2])
-        #audio_file = open(f"myaudio.mp3", "rb")
-        #audio_bytes = audio_file.read()
-        sound_file = BytesIO()
-
-        tts = gTTS('This is testing audio text', lang='en')
-        tts.write_to_fp(sound_file)
-        st.audio(sound_file)
-        #st.audio(audio_bytes, format="audio/mp3", start_time=0)
-        logging.warning ('-----------------------Audio END-----------------------------')
-
-    if stop_yolo and processes:
-        #stop_process(*processes)
-        processes.clear()
+if stop_yolo and processes:
+    #stop_process(*processes)
+    processes.clear()
 
 
 
