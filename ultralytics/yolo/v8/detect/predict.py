@@ -14,6 +14,8 @@ Indoor_detected_class = [0,13,26,56,24,57,63]
 
 #DISTANCE CONTASTANT
 KNOWN_DISTANCE = 1.5 # meter
+
+#INDOOR
 cell_phone_WIDTH = 0.08 #meter
 person_WIDTH = 0.40 #meter
 backpack_WIDTH = 0.35
@@ -23,6 +25,18 @@ dining_table_WIDTH = 0.96
 laptop_WIDTH = 0.35
 bench_WIDTH = 0.45
 couch_WIDTH = 2.21
+potted_plant_WIDTH = 0.13
+suitcase_WIDTH = 0.45
+tv_WIDTH = 0.96
+
+#OUTDOOR
+car_WIDTH = 1.77
+bicycle_WIDTH = 0.75
+motorcycle_WIDTH = 0.86
+stopsign_WIDTH = 0.6
+traffic_light_WIDth= 0.2
+parking_meter_WIDTH = 2.7
+
 
 def focal_length_finder (measured_distance, real_width, width_in_rf):
     focal_length = (width_in_rf * measured_distance) / real_width
@@ -146,7 +160,55 @@ class DetectionPredictor(BasePredictor):
                distance = distance_finder(focal_laptop, laptop_WIDTH, width)
                distances[self.model.names[c]] = distance
 
-            #TODO: Add TV,Dining Table, Suitcase, Potted Plant
+            if c == 58: # 8. PottedPlant
+               focal_plant = focal_length_finder(KNOWN_DISTANCE, potted_plant_WIDTH, rf.potted_plant_width_in_rf )
+               distance = distance_finder(focal_plant, potted_plant_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 62: # 9. TV
+               focal_TV = focal_length_finder(KNOWN_DISTANCE, tv_WIDTH, rf.tv_width_in_rf )
+               distance = distance_finder(focal_TV, tv_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 60: # 10. Dining Table
+               focal_dining_table = focal_length_finder(KNOWN_DISTANCE, dining_table_WIDTH, rf.dining_table_in_rf )
+               distance = distance_finder(focal_dining_table, dining_table_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 28: # 11. Suitcase
+               focal_suitcase = focal_length_finder(KNOWN_DISTANCE, suitcase_WIDTH, rf.suitcase_width_in_rf )
+               distance = distance_finder(focal_suitcase, suitcase_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 2: # 1. Car
+               focal_car = focal_length_finder(KNOWN_DISTANCE, car_WIDTH, rf.car_width_in_rf )
+               distance = distance_finder(focal_car, car_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 3: # 2. MotorCycle
+               focal_motorcycle = focal_length_finder(KNOWN_DISTANCE, motorcycle_WIDTH, rf.motorcycle_width_in_rf )
+               distance = distance_finder(focal_motorcycle, motorcycle_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 1: # 3. Bicycle
+               focal_bicycle = focal_length_finder(KNOWN_DISTANCE, bicycle_WIDTH, rf.bicycle_width_in_rf )
+               distance = distance_finder(focal_bicycle, bicycle_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 11: # 4. Stopsign
+               focal_stopsign = focal_length_finder(KNOWN_DISTANCE, stopsign_WIDTH, rf.stopsign_width_in_rf )
+               distance = distance_finder(focal_stopsign, stopsign_WIDTH, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 9: # 5. Traffic Light
+               focal_trafficlight = focal_length_finder(KNOWN_DISTANCE, traffic_light_WIDth, rf.trafficlight_width_in_rf )
+               distance = distance_finder(focal_trafficlight, traffic_light_WIDth, width)
+               distances[self.model.names[c]] = distance
+
+            if c == 12: # 6. Parking Meter
+               focal_parkingmeter = focal_length_finder(KNOWN_DISTANCE, parking_meter_WIDTH, rf.parkingmeter_width_in_rf )
+               distance = distance_finder(focal_parkingmeter, parking_meter_WIDTH, width)
+               distances[self.model.names[c]] = distance
 
             #find position of nearest detected item
             # use the center (x, y)-coordinates to derive the top and
