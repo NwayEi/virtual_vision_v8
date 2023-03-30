@@ -130,9 +130,9 @@ def detect_uploaded_video(source):
 
 def speech_uploaded_video():
     logging.warning ('----------speech start------------------')
-    engine = pyttsx3.init()
-    newVoiceRate = 170
-    engine.setProperty('rate', newVoiceRate)
+    #engine = pyttsx3.init()
+    #newVoiceRate = 170
+    #engine.setProperty('rate', newVoiceRate)
 
     while True:
         #with open('speech.txt', 'r') as f:
@@ -146,9 +146,9 @@ def speech_uploaded_video():
         #speech_text = f.read().strip()
         #f.close()
 
-        if speech_text != '':
-            engine.say(speech_text)
-            engine.runAndWait()
+        #if speech_text != '':
+         #   engine.say(speech_text)
+          #  engine.runAndWait()
 
         # Process the result here...
 
