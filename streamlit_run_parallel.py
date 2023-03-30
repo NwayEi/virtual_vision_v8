@@ -39,7 +39,9 @@ def check_folders():
             os.makedirs(folder)
             print(f"The new directory {folder} is created!")
 
-
+audio_file = open('myaudio.mp3','rb')
+audio_bytes = audio_file.read()
+st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
 
 check_folders()
 
