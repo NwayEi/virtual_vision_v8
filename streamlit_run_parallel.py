@@ -19,7 +19,7 @@ from io import BytesIO
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-
+is_gtts = False
 #-------------------------------------------------v1 for streamlit--------------------------------------------------------
 
 def check_folders():
@@ -152,7 +152,7 @@ def speech_uploaded_video():
 
     tts = gTTS('this is inside speech uploaded video text', lang='en')
     tts.write_to_fp(new_sound_file)
-
+    is_gtts = True
 
 
 
@@ -167,7 +167,6 @@ def speech_uploaded_video():
     logging.warning ('----------speech end------------------')
 
 
-st.audio(new_sound_file)
 
 def text_to_speech(text):
 
@@ -220,6 +219,10 @@ def stopProcess():
 if is_valid:
     print('valid')
     print(video_source)
+
+if is_gtts:
+    print('GTTS')
+    st.audio(new_sound_file)
 
 
     # p1 = Process(target = detect, args=(video_source,))
