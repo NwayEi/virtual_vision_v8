@@ -42,7 +42,7 @@ def check_folders():
 sound_file = BytesIO()
 tts = gTTS('This is testing audio text', lang='en')
 tts.write_to_fp(sound_file)
-st.audio(sound_file)
+#st.audio(sound_file)
 
 check_folders()
 
@@ -176,7 +176,7 @@ def text_to_speech(text):
     sound_file = BytesIO()
     tts = gTTS(text, lang='en')
     tts.write_to_fp(sound_file)
-    st.audio(sound_file)
+
 
     logging.warning ('----------END Text to speech ------------------')
 
@@ -197,7 +197,7 @@ def autoplay_audio(file_path: str):
 
 
 
-
+st.audio(sound_file,autoplay=True)
 # def stop_process(self):
 #     self.kill()
 # p1 = Process(target= Detect)
