@@ -40,6 +40,7 @@ def check_folders():
             print(f"The new directory {folder} is created!")
 
 sound_file = BytesIO()
+new_sound_file = BytesIO()
 tts = gTTS('This is testing audio text', lang='en')
 tts.write_to_fp(sound_file)
 
@@ -150,8 +151,8 @@ def speech_uploaded_video():
 
 
     tts = gTTS('this is inside speech uploaded video text', lang='en')
-    tts.write_to_fp(sound_file)
-    st.audio(sound_file)
+    tts.write_to_fp(new_sound_file)
+
 
 
 
@@ -238,6 +239,8 @@ if is_valid:
         #stop_process(*processes)
         processes.clear()
 
+
+st.audio(new_sound_file)
 
 
 #
