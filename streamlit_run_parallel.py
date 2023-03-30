@@ -157,9 +157,9 @@ def speech_uploaded_video():
 def text_to_speech(text):
 
     logging.warning ('----------START Text to speech ------------------')
-    gtts = gTTS(text, lang='en')
-    gtts.save('testspeech.mp3')
-    audio_file = open(f'testspeech.mp3','rb')
+    #gtts = gTTS(text, lang='en')
+    #gtts.save('testspeech.mp3')
+    audio_file = open(f'myaudio.mp3','rb')
     audio_bytes = audio_file.read()
     st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
     logging.warning ('----------END Text to speech ------------------')
