@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from multiprocessing import Process
 from ultralytics import YOLO
-# from gtts import gTTS
+from gtts import gTTS
 import ReferenceImageVal as ri
 import signal
 import streamlit as st
@@ -110,20 +110,20 @@ def DetectReferenceImages():
 #     DetectReferenceImages()
 #     model.predict(source="0", show = True)
 
-def Speech():
-    engine = pyttsx3.init()
-    while True:
+# def Speech():
+#     engine = pyttsx3.init()
+#     while True:
 
-        with open('speech.txt') as f:
-            speech = f.readlines()
-        f.close()
-        newVoiceRate = 170
-        engine.setProperty('rate',newVoiceRate)
+#         with open('speech.txt') as f:
+#             speech = f.readlines()
+#         f.close()
+#         newVoiceRate = 170
+#         engine.setProperty('rate',newVoiceRate)
 
-        if speech != []:
-            engine.say(f'{speech}')
-            engine.runAndWait()
-        time.sleep(3)
+#         if speech != []:
+#             engine.say(f'{speech}')
+#             engine.runAndWait()
+#         time.sleep(3)
 
 def detect_uploaded_video(source):
     logging.warning ('----------model  prediction start------------------')
@@ -131,31 +131,42 @@ def detect_uploaded_video(source):
     logging.warning ('----------model  prediction start------------------')
 
 def speech_uploaded_video():
+
     logging.warning ('----------speech start------------------')
     engine = pyttsx3.init()
     newVoiceRate = 170
     engine.setProperty('rate', newVoiceRate)
 
     while True:
-        #with open('speech.txt', 'r') as f:
         logging.warning(f'--------------START Reading File ----------')
         file = open('speech.txt','r')
         speech_text = file.read().strip()
         file.close()
         logging.warning(f'--------------END Reading File ----------{speech_text}')
-        #speech_file = open('speech.txt', 'r') as f:
-        #print(f'--------------Reading File {f.read().strip()}----------')
-        #speech_text = f.read().strip()
-        #f.close()
+
 
         if speech_text != '':
-            engine.say(speech_text)
-            engine.runAndWait()
+            text_to_speech(speech_text)
+            #engine.say(speech_text)
+            #engine.runAndWait()
 
-        # Process the result here...
+         #Process the result here...
 
         time.sleep(3)
         logging.warning ('----------speech end------------------')
+def text_to_speech(text):
+
+    logging.warning ('----------START Text to speech ------------------')
+    gtts = gTTS(text, lang='en')
+    gtts.save('testspeech.mp3')
+    audio_file = open(f'testspeech.mp3','rb')
+    audio_bytes = audio_file.read()
+    st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
+    logging.warning ('----------END Text to speech ------------------')
+
+
+
+
 
 # def stop_process(self):
 #     self.kill()
