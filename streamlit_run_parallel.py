@@ -146,7 +146,13 @@ def speech_uploaded_video():
         file = open('speech.txt','r')
         speech_text = file.read().strip()
         file.close()
+
         logging.warning(f'--------------END Reading File ----------{speech_text}')
+
+        sound_file = BytesIO()
+        tts = gTTS(speech_text, lang='en')
+        tts.write_to_fp(sound_file)
+
 
 
         if speech_text != '':
@@ -167,13 +173,29 @@ def text_to_speech(text):
     #audio_bytes = audio_file.read()
     #st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
 
-    sound_file = BytesIO()
-    tts = gTTS('Add text-to-speech to your app', lang='en')
-    tts.write_to_fp(sound_file)
-    st.audio(sound_file)
+    #sound_file = BytesIO()
+    #tts = gTTS('Add text-to-speech to your app', lang='en')
+    #tts.write_to_fp(sound_file)
+    #st.audio(sound_file)
+
+    autoplay_audio("myaudio.mp3")
 
     logging.warning ('----------END Text to speech ------------------')
 
+
+def autoplay_audio(file_path: str):
+     with open(file_path, "rb") as f:
+         data = f.read()
+         b64 = base64.b64encode(data).decode()
+         md = f"""
+             <audio controls autoplay="true">
+             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+             </audio>
+             """
+         st.markdown(
+             md,
+             unsafe_allow_html=True,
+         ).write("# Auto-playing Audio!")
 
 
 
@@ -344,21 +366,7 @@ if is_valid:
 
 #     st.audio(note_la, sample_rate=sample_rate)
 
-# def autoplay_audio(file_path: str):
-#     with open(file_path, "rb") as f:
-#         data = f.read()
-#         b64 = base64.b64encode(data).decode()
-#         md = f"""
-#             <audio controls autoplay="true">
-#             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-#             </audio>
-#             """
-#         st.markdown(
-#             md,
-#             unsafe_allow_html=True,
-#         ).write("# Auto-playing Audio!")
 
-# # #autoplay_audio("local_audio.mp3")
 
 # def speech():
 #     print('---------------speech func started------------------')
