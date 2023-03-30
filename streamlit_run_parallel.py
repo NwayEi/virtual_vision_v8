@@ -135,11 +135,16 @@ def speech_uploaded_video():
     engine.setProperty('rate', newVoiceRate)
 
     while True:
-        with open('speech.txt', 'r') as f:
-        # speech_file = open('speech.txt', 'r')
-            print(f'--------------Reading File {f.read().strip()}----------')
-            speech_text = f.read().strip()
-            f.close()
+        #with open('speech.txt', 'r') as f:
+        print(f'--------------START Reading File ----------')
+        file = open('speech.txt','r')
+        speech_text = file.read().strip()
+        file.close()
+        print(f'--------------END Reading File ----------')
+        #speech_file = open('speech.txt', 'r') as f:
+        #print(f'--------------Reading File {f.read().strip()}----------')
+        #speech_text = f.read().strip()
+        #f.close()
 
         if speech_text != '':
             engine.say(speech_text)
