@@ -149,7 +149,7 @@ def speech_uploaded_video():
     logging.warning(f'--------------END Reading File ----------{speech_text}')
 
 
-    tts = gTTS(speech_text, lang='en')
+    tts = gTTS('this is inside speech uploaded video text', lang='en')
     tts.write_to_fp(sound_file)
     st.audio(sound_file)
 
