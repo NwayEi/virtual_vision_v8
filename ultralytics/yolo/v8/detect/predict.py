@@ -250,14 +250,15 @@ class DetectionPredictor(BasePredictor):
             a = file.write(self.new_text)
             file.close()
 
+            print (f'------------------WRITE FILE {self.new_text}---------------------------')
             #Generate mp3 file
             # gtts = gTTS(self.new_text, lang='en')
             # gtts.save('myaudio.mp3')
 
             #reset the text
-            if self.new_text != '':
-                gtts = gTTS(self.new_text, lang='en')
-                gtts.save('myaudio.mp3')
+            # if self.new_text != '':
+                # gtts = gTTS(self.new_text, lang='en')
+                # gtts.save('myaudio.mp3')
             self.new_text = ''
 
 

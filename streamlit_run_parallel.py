@@ -7,24 +7,20 @@ import signal
 import streamlit as st
 import numpy as np
 import base64
-<<<<<<< HEAD
 import subprocess
 import os
 import pyttsx3
 import time
 import threading
 import logging
-=======
 import pyttsx3
 import time
->>>>>>> 421b69e9771564845b9b1d3a042f558100687f38
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 
 #-------------------------------------------------v1 for streamlit--------------------------------------------------------
 
-<<<<<<< HEAD
 def check_folders():
     paths = {
         'data_path' : 'data',
@@ -76,7 +72,6 @@ if uploaded_file is not None:
         video_source = f'data/videos/{uploaded_file.name}'
 else:
     is_valid = False
-=======
 def DetectReferenceImages():
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
@@ -112,7 +107,6 @@ def Detect():
 
     DetectReferenceImages()
     model.predict(source="0", show = True)
->>>>>>> 421b69e9771564845b9b1d3a042f558100687f38
 
 def Speech():
     engine = pyttsx3.init()
@@ -143,6 +137,7 @@ def speech():
     while True:
         with open(os.path.join('speech.txt'), 'r') as f:
         # speech_file = open('speech.txt', 'r')
+            print(f'--------------Reading File {f.read().strip()}')
             speech_text = f.read().strip()
             f.close()
 
@@ -155,10 +150,8 @@ def speech():
         time.sleep(3)
         logging.warning ('----------speech end------------------')
 
-<<<<<<< HEAD
 def stop_process(self):
     self.kill()
-=======
 p1 = Process(target= Detect)
 p2 = Process(target= Speech)
 
@@ -166,7 +159,6 @@ def stopProcess():
     p1.kill()
     p2.kill()
     print('--------------EXIT START------------------')
->>>>>>> 421b69e9771564845b9b1d3a042f558100687f38
     signal.SIGINT
 
 if is_valid:
