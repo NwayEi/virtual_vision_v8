@@ -141,19 +141,17 @@ def speech_uploaded_video():
     engine = pyttsx3.init()
     newVoiceRate = 170
     engine.setProperty('rate', newVoiceRate)
+    logging.warning(f'--------------START Reading File ----------')
+    file = open('speech.txt','r')
+    speech_text = file.read().strip()
+    file.close()
 
-    while True:
-        logging.warning(f'--------------START Reading File ----------')
-        file = open('speech.txt','r')
-        speech_text = file.read().strip()
-        file.close()
-
-        logging.warning(f'--------------END Reading File ----------{speech_text}')
+    logging.warning(f'--------------END Reading File ----------{speech_text}')
 
 
-        tts = gTTS(speech_text, lang='en')
-        tts.write_to_fp(sound_file)
-        st.audio(sound_file)
+    tts = gTTS(speech_text, lang='en')
+    tts.write_to_fp(sound_file)
+    st.audio(sound_file)
 
 
 
@@ -164,8 +162,9 @@ def speech_uploaded_video():
 
          #Process the result here...
 
-        time.sleep(3)
-        logging.warning ('----------speech end------------------')
+    time.sleep(3)
+    logging.warning ('----------speech end------------------')
+
 def text_to_speech(text):
 
     logging.warning ('----------START Text to speech ------------------')
