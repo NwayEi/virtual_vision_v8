@@ -7,18 +7,24 @@ import signal
 import streamlit as st
 import numpy as np
 import base64
+<<<<<<< HEAD
 import subprocess
 import os
 import pyttsx3
 import time
 import threading
 import logging
+=======
+import pyttsx3
+import time
+>>>>>>> 421b69e9771564845b9b1d3a042f558100687f38
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 
 #-------------------------------------------------v1 for streamlit--------------------------------------------------------
 
+<<<<<<< HEAD
 def check_folders():
     paths = {
         'data_path' : 'data',
@@ -70,7 +76,58 @@ if uploaded_file is not None:
         video_source = f'data/videos/{uploaded_file.name}'
 else:
     is_valid = False
+=======
+def DetectReferenceImages():
+    result = model.predict(source='ReferenceImages/person.png')
+    ri.person_width_in_rf = result[0].boxes.xywh[0][2]
+    print(f'-----------Person width : {ri.person_width_in_rf}')
 
+    result_chair= model.predict(source='ReferenceImages/chair.jpeg')
+    ri.chair_width_in_rf = result_chair[0].boxes.xywh[0][2]
+    print(f'-----------Chair width : {ri.chair_width_in_rf}')
+
+    result_handbag = model.predict(source='ReferenceImages/handbag.jpeg')
+    ri.handbag_width_in_rf = result_handbag[0].boxes.xywh[0][2]
+    print(f'-----------Handbag width : {ri.handbag_width_in_rf}')
+
+    result_bench = model.predict(source='ReferenceImages/bench.jpeg')
+    ri.bench_width_in_rf = result_bench[0].boxes.xywh[0][2]
+    print(f'-----------Bench width : {ri.bench_width_in_rf}')
+
+    result_couch = model.predict(source='ReferenceImages/couch.jpeg')
+    ri.couch_width_in_rf = result_couch[0].boxes.xywh[0][2]
+    print(f'-----------Couch width : {ri.couch_width_in_rf}')
+
+    result_backpack = model.predict(source='ReferenceImages/backpack.jpeg')
+    ri.backpack_width_in_rf = result_backpack[0].boxes.xywh[0][2]
+    print(f'-----------Backpack width : {ri.backpack_width_in_rf}')
+
+    result_laptop = model.predict(source='ReferenceImages/laptop.jpeg')
+    ri.laptop_width_in_rf = result_laptop[0].boxes.xywh[0][2]
+    print(f'-----------Laptop width : {ri.laptop_width_in_rf}')
+
+
+
+def Detect():
+
+    DetectReferenceImages()
+    model.predict(source="0", show = True)
+>>>>>>> 421b69e9771564845b9b1d3a042f558100687f38
+
+def Speech():
+    engine = pyttsx3.init()
+    while True:
+
+        with open('speech.txt') as f:
+            speech = f.readlines()
+        f.close()
+        newVoiceRate = 170
+        engine.setProperty('rate',newVoiceRate)
+
+        if speech != []:
+            engine.say(f'{speech}')
+            engine.runAndWait()
+        time.sleep(3)
 
 def detect(source):
     logging.warning ('----------model  prediction start------------------')
@@ -98,8 +155,18 @@ def speech():
         time.sleep(3)
         logging.warning ('----------speech end------------------')
 
+<<<<<<< HEAD
 def stop_process(self):
     self.kill()
+=======
+p1 = Process(target= Detect)
+p2 = Process(target= Speech)
+
+def stopProcess():
+    p1.kill()
+    p2.kill()
+    print('--------------EXIT START------------------')
+>>>>>>> 421b69e9771564845b9b1d3a042f558100687f38
     signal.SIGINT
 
 if is_valid:
