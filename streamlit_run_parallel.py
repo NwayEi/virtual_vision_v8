@@ -135,7 +135,7 @@ def speech_uploaded_video():
     engine.setProperty('rate', newVoiceRate)
 
     while True:
-        with open('speech.txt', 'r') as f:
+        with open('https://github.com/NwayEi/virtual_vision_v8/blob/streamlit_cloud_video/speech.txt', 'r') as f:
         # speech_file = open('speech.txt', 'r')
             print(f'--------------Reading File {f.read().strip()}')
             speech_text = f.read().strip()
