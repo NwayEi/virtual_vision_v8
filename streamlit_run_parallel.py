@@ -72,6 +72,8 @@ if uploaded_file is not None:
         video_source = f'data/videos/{uploaded_file.name}'
 else:
     is_valid = False
+
+
 def DetectReferenceImages():
     result = model.predict(source='ReferenceImages/person.png')
     ri.person_width_in_rf = result[0].boxes.xywh[0][2]
@@ -136,11 +138,11 @@ def speech_uploaded_video():
 
     while True:
         #with open('speech.txt', 'r') as f:
-        print(f'--------------START Reading File ----------')
+        logging.warning(f'--------------START Reading File ----------')
         file = open('speech.txt','r')
         speech_text = file.read().strip()
         file.close()
-        print(f'--------------END Reading File ----------')
+        logging.warning(f'--------------END Reading File ----------{speech_text}')
         #speech_file = open('speech.txt', 'r') as f:
         #print(f'--------------Reading File {f.read().strip()}----------')
         #speech_text = f.read().strip()
