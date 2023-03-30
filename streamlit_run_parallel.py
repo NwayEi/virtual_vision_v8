@@ -15,6 +15,7 @@ import threading
 import logging
 import pyttsx3
 import time
+from io import BytesIO
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
@@ -159,9 +160,15 @@ def text_to_speech(text):
     logging.warning ('----------START Text to speech ------------------')
     #gtts = gTTS(text, lang='en')
     #gtts.save('testspeech.mp3')
-    audio_file = open(f'myaudio.mp3','rb')
-    audio_bytes = audio_file.read()
-    st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
+    #audio_file = open('myaudio.mp3','rb')
+    #audio_bytes = audio_file.read()
+    #st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
+
+    sound_file = BytesIO()
+    tts = gTTS('Add text-to-speech to your app', lang='en')
+    tts.write_to_fp(sound_file)
+    st.audio(sound_file)
+
     logging.warning ('----------END Text to speech ------------------')
 
 
