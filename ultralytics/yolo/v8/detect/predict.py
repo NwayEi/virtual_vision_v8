@@ -10,7 +10,8 @@ from gtts import gTTS
 import ReferenceImageVal as rf
 new_text =''
 old_text = ''
-Indoor_detected_class = [0,13,26,56,24,57,63]
+selected_detected_class = [0,13,26,56,24,57,63,58,62,60,28,1,2,3,9,11,12]
+
 
 #DISTANCE CONTASTANT
 KNOWN_DISTANCE = 1.5 # meter
@@ -115,7 +116,7 @@ class DetectionPredictor(BasePredictor):
         distance = 0
 
         for c in det.cls.unique():
-            if c in Indoor_detected_class:
+            if c in selected_detected_class:
                 n = (det.cls == c).sum()  # detections per class
                 log_string += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
                 self.new_text += f"{n} {self.model.names[int(c)]}{'s' * (n > 1)}, "
@@ -260,7 +261,7 @@ class DetectionPredictor(BasePredictor):
         for d in reversed(det):
 
             c, conf, id = int(d.cls), float(d.conf), None if d.id is None else int(d.id.item())
-            if c in Indoor_detected_class:
+            if c in selected_detected_class:
 
                 if self.args.save_txt:  # Write to file
                     line = (c, *d.xywhn.view(-1)) + (conf, ) * self.args.save_conf + (() if id is None else (id, ))
