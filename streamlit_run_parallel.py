@@ -157,8 +157,8 @@ def speech_uploaded_video():
 
 
 
-        if speech_text != '':
-            text_to_speech(speech_text)
+        #if speech_text != '':
+            #text_to_speech(speech_text)
             #engine.say(speech_text)
             #engine.runAndWait()
 
