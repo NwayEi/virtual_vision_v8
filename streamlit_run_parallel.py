@@ -157,7 +157,7 @@ if start_yolo:
     text = speech_uploaded_video()
 
     sound_file = BytesIO()
-    tts = gTTS(text, lang='en')
+    tts = gTTS(f"{text}", lang='en')
     tts.write_to_fp(sound_file)
     st.audio(sound_file)
 
