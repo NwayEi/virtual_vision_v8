@@ -196,10 +196,11 @@ def autoplay_audio(file_path: str):
          ).write("# Auto-playing Audio!")
 
 
-audio_file = open('myaudio.mp3', 'rb')
-audio_bytes = audio_file.read()
+##audio_file = open('myaudio.mp3', 'rb')
+#audio_bytes = audio_file.read()
+while True:
+    st.audio(sound_file)
 
-st.audio(audio_bytes, format='audio/mp3')
 
 # def stop_process(self):
 #     self.kill()
