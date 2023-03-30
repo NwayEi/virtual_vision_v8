@@ -166,6 +166,9 @@ def speech_uploaded_video():
     time.sleep(3)
     logging.warning ('----------speech end------------------')
 
+
+st.audio(new_sound_file)
+
 def text_to_speech(text):
 
     logging.warning ('----------START Text to speech ------------------')
@@ -240,7 +243,6 @@ if is_valid:
         processes.clear()
 
 
-st.audio(new_sound_file)
 
 
 #
