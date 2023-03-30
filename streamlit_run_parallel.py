@@ -39,9 +39,10 @@ def check_folders():
             os.makedirs(folder)
             print(f"The new directory {folder} is created!")
 
-audio_file = open('myaudio.mp3','rb')
-audio_bytes = audio_file.read()
-st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
+sound_file = BytesIO()
+tts = gTTS('This is testing audio text', lang='en')
+tts.write_to_fp(sound_file)
+st.audio(sound_file)
 
 check_folders()
 
