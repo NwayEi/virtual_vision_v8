@@ -175,12 +175,9 @@ def text_to_speech(text):
     #st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
 
     sound_file = BytesIO()
-    tts = gTTS('Add text-to-speech to your app', lang='en')
+    tts = gTTS(text, lang='en')
     tts.write_to_fp(sound_file)
-    ps.playsound(sound_file)
-    #st.audio(sound_file)
-
-    #autoplay_audio("myaudio.mp3")
+    st.audio(sound_file)
 
     logging.warning ('----------END Text to speech ------------------')
 
