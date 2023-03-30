@@ -16,7 +16,6 @@ import logging
 import pyttsx3
 import time
 from io import BytesIO
-import playsound as ps
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
