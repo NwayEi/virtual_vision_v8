@@ -132,9 +132,9 @@ def DetectReferenceImages():
 #         time.sleep(3)
 
 def detect_uploaded_video(source):
-    logging.warning ('----------model  prediction start------------------')
+    logging.warning ('----------START model  prediction------------------')
     results = model.predict(source = source)
-    logging.warning ('----------model  prediction start------------------')
+    logging.warning ('----------END model  prediction ------------------')
 
 def speech_uploaded_video():
 
@@ -225,21 +225,23 @@ if is_valid:
     # p1 = Process(target = detect, args=(video_source,))
     # p2= Process(target =speech)
     if start_yolo:
-        logging.warning('-----------------yolo start---------------------')
-        p1 = Process(target=detect_uploaded_video, args=(video_source,))
+        logging.warning('-----------------P1 yolo start---------------------')
+        #p1 = Process(target=detect_uploaded_video, args=(video_source,))
+        p1 = Process(target=DetectReferenceImages, args=(video_source,))
         p1.start()
 
-        logging.warning('---------------yolo speech start-------------------------')
+        logging.warning('---------------P2 yolo speech start-------------------------')
         p2 = Process(target=speech_uploaded_video)
         p2.start()
 
         p1.join()
         p2.join()
-        logging.warnng ('-----------------------yolo stop-----------------------------')
-        processes.extend([p1,p2])
+        logging.warning ('-----------------------Process END-----------------------------')
+        #processes.extend([p1,p2])
         audio_file = open(f"myaudio.mp3", "rb")
         audio_bytes = audio_file.read()
         st.audio(audio_bytes, format="audio/mp3", start_time=0)
+        logging.warning ('-----------------------Audio END-----------------------------')
 
     if stop_yolo and processes:
         #stop_process(*processes)
