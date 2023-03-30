@@ -40,8 +40,10 @@ def check_folders():
             print(f"The new directory {folder} is created!")
 
 sound_file = BytesIO()
+new_sound_file = BytesIO()
 tts = gTTS('This is testing audio text', lang='en')
 tts.write_to_fp(sound_file)
+tts.write_to_fp(new_sound_file)
 #st.audio(sound_file)
 
 check_folders()
@@ -149,9 +151,9 @@ def speech_uploaded_video():
 
         logging.warning(f'--------------END Reading File ----------{speech_text}')
 
-        sound_file = BytesIO()
+
         tts = gTTS(speech_text, lang='en')
-        tts.write_to_fp(sound_file)
+        tts.write_to_fp(new_sound_file)
 
 
 
@@ -198,8 +200,8 @@ def autoplay_audio(file_path: str):
 
 ##audio_file = open('myaudio.mp3', 'rb')
 #audio_bytes = audio_file.read()
-while True:
-    st.audio(sound_file)
+if sound_file !=  new_sound_file:
+    st.audio(new_sound_file)
 
 
 # def stop_process(self):
