@@ -164,7 +164,7 @@ def autoplay_audio(file_path: str):
          data = f.read()
          b64 = base64.b64encode(data).decode()
          md = f"""
-             <audio autoplay="true">
+             <audio autoplay>
              <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
              </audio>
              """
@@ -229,7 +229,17 @@ if start_yolo:
     sound_file = BytesIO()
     tts = gTTS(f"{text}", lang='en')
     tts.write_to_fp(sound_file)
-    st.audio(sound_file)
+    # st.audio(sound_file)
+    b64 = base64.b64encode(sound_file).decode()
+    md = f"""
+             <audio autoplay>
+             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+             </audio>
+             """
+    st.markdown(
+             md,
+             unsafe_allow_html=True,
+         ).write("# Auto-playing Audio!")
 
     logging.warning ('-----------------------Audio END-----------------------------')
 
