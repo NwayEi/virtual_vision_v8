@@ -153,7 +153,7 @@ def text_to_speech(text):
 def speech_uploaded_video():
 
     logging.warning(f'--------------START Reading File ----------')
-    file = open('speech.txt','r')
+    file = open('cloudspeech.txt','r')
     speech_text = file.read().strip()
     file.close()
 
