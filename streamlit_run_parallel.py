@@ -19,7 +19,7 @@ from io import BytesIO
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-
+is_gtts = False
 #-------------------------------------------------v1 for streamlit--------------------------------------------------------
 
 def check_folders():
@@ -38,7 +38,6 @@ def check_folders():
         for folder in notExist:
             os.makedirs(folder)
             print(f"The new directory {folder} is created!")
-
 
 
 check_folders()
@@ -105,34 +104,14 @@ def DetectReferenceImages():
     print(f'-----------Laptop width : {ri.laptop_width_in_rf}')
 
 
-
-# def Detect():
-
-#     DetectReferenceImages()
-#     model.predict(source="0", show = True)
-
-# def Speech():
-#     engine = pyttsx3.init()
-#     while True:
-
-#         with open('speech.txt') as f:
-#             speech = f.readlines()
-#         f.close()
-#         newVoiceRate = 170
-#         engine.setProperty('rate',newVoiceRate)
-
-#         if speech != []:
-#             engine.say(f'{speech}')
-#             engine.runAndWait()
-#         time.sleep(3)
-
 def detect_uploaded_video(source):
-    logging.warning ('----------model  prediction start------------------')
+    logging.warning ('----------START model  prediction------------------')
     results = model.predict(source = source)
-    logging.warning ('----------model  prediction start------------------')
+    logging.warning ('----------END model  prediction ------------------')
 
 # def speech_uploaded_video():
 
+<<<<<<< HEAD
 #     logging.warning ('----------speech start------------------')
 #     engine = pyttsx3.init()
 #     newVoiceRate = 170
@@ -164,8 +143,16 @@ def text_to_speech(text):
     audio_bytes = audio_file.read()
     st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
     logging.warning ('----------END Text to speech ------------------')
+=======
+    logging.warning(f'--------------START Reading File ----------')
+    file = open('speech.txt','r')
+    speech_text = file.read().strip()
+    file.close()
+>>>>>>> 9406aa10463b4968f1d455cb033ae62b7c155eea
 
+    logging.warning(f'--------------END Reading File ----------{speech_text}')
 
+<<<<<<< HEAD
 def speech_uploaded_video():
 
     logging.warning(f'--------------START Reading File ----------')
@@ -190,7 +177,23 @@ def autoplay_audio(file_path: str):
              md,
              unsafe_allow_html=True,
          ).write("# Auto-playing Audio!")
+=======
+    return speech_text
+>>>>>>> 9406aa10463b4968f1d455cb033ae62b7c155eea
 
+def autoplay_audio(file_path: str):
+     with open(file_path, "rb") as f:
+         data = f.read()
+         b64 = base64.b64encode(data).decode()
+         md = f"""
+             <audio controls autoplay="true">
+             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+             </audio>
+             """
+         st.markdown(
+             md,
+             unsafe_allow_html=True,
+         ).write("# Auto-playing Audio!")
 
 
 def stop_process(self):
@@ -198,17 +201,18 @@ def stop_process(self):
 p1 = Process(target= Detect)
 p2 = Process(target= Speech)
 
-def stopProcess():
-    p1.kill()
-    p2.kill()
-    print('--------------EXIT START------------------')
-    signal.SIGINT
+#def stopProcess():
+ #   p1.kill()
+ #   p2.kill()
+ #   print('--------------EXIT START------------------')
+ #   signal.SIGINT
 
 if is_valid:
     print('valid')
     print(video_source)
 
 
+<<<<<<< HEAD
     # p1 = Process(target = detect, args=(video_source,))
     # p2= Process(target =speech)
     # if start_yolo:
@@ -240,6 +244,18 @@ if start_yolo:
     tts.write_to_fp(sound_file)
     st.audio(sound_file)
 
+=======
+if start_yolo:
+    logging.warning('-----------------yolo video prediction start---------------------')
+    detect_uploaded_video(video_source)
+    text = speech_uploaded_video()
+
+    sound_file = BytesIO()
+    tts = gTTS(f"{text}", lang='en')
+    tts.write_to_fp(sound_file)
+    st.audio(sound_file)
+
+>>>>>>> 9406aa10463b4968f1d455cb033ae62b7c155eea
     logging.warning ('-----------------------Audio END-----------------------------')
 
 if stop_yolo and processes:
@@ -377,21 +393,7 @@ if stop_yolo and processes:
 
 #     st.audio(note_la, sample_rate=sample_rate)
 
-# def autoplay_audio(file_path: str):
-#     with open(file_path, "rb") as f:
-#         data = f.read()
-#         b64 = base64.b64encode(data).decode()
-#         md = f"""
-#             <audio controls autoplay="true">
-#             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-#             </audio>
-#             """
-#         st.markdown(
-#             md,
-#             unsafe_allow_html=True,
-#         ).write("# Auto-playing Audio!")
 
-# # #autoplay_audio("local_audio.mp3")
 
 # def speech():
 #     print('---------------speech func started------------------')
