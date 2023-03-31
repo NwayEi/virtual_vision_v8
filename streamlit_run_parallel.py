@@ -64,7 +64,7 @@ if source_index == 0:
     else:
         is_valid = False
 else:
-    uploaded_file = st.sidebar.file_uploader("Upload Video", type=['mov'])
+    uploaded_file = st.sidebar.file_uploader("Upload Video", type=['mov','mp4'])
     if uploaded_file is not None:
         is_valid = True
         with st.spinner(text='Loading...'):
@@ -193,17 +193,10 @@ if is_valid:
 
         if source_index == 0:
             with st.spinner(text='Audio loading...'):
-                logging.warning('-----------------yolo video prediction start---------------------')
+                logging.warning('-----------------yolo image prediction start---------------------')
 
                 detect_uploaded(img_source)
                 text = speech_uploaded_video()
-
-                sound_file = BytesIO()
-                tts = gTTS(f"{text}", lang='en')
-                tts.write_to_fp(sound_file)
-                st.audio(sound_file)
-
-                logging.warning ('-----------------------Audio END-----------------------------')
 
 
         else:
@@ -213,32 +206,16 @@ if is_valid:
                 detect_uploaded(video_source)
                 text = speech_uploaded_video()
 
-                sound_file = BytesIO()
-                tts = gTTS(f"{text}", lang='en')
-                tts.write_to_fp(sound_file)
-                st.audio(sound_file)
+            sound_file = BytesIO()
+            tts = gTTS(f"{text}", lang='en')
+            tts.write_to_fp(sound_file)
+            st.audio(sound_file)
 
-                logging.warning ('-----------------------Audio END-----------------------------')
+            logging.warning ('-----------------------Audio END-----------------------------')
 
 if stop_yolo and processes:
     #stop_process(*processes)
     processes.clear()
-
-
-
-
-#
-
-    #
-        #         with rd.stderr(format='markdown', to=st.sidebar), st.spinner('Wait for it...'):
-                    # if source_index ==0:
-                        # predict_source =
-                        # result1 = model.predict(source=img_source, show=True)
-                        # print(subprocess.run(['yolo', 'task=detect', 'mode=predict', 'model=yolov8n.pt', 'conf=0.25', 'source=img_source'],capture_output=True, universal_newlines=True).stderr)
-
-                    # elif source_index ==1:
-                        # result2 = (model.predict(source=video_source, show=True)
-                        # print(subprocess.run(['yolo', 'task=detect', 'mode=predict', 'model=yolov8n.pt', 'conf=0.25', 'source=video_source'],capture_output=True, universal_newlines=True).stderr)
 
 
 
