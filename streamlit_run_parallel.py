@@ -16,6 +16,7 @@ import logging
 import pyttsx3
 import time
 from io import BytesIO
+from PIL import Image
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
@@ -49,29 +50,30 @@ source_index = st.sidebar.selectbox("Select Input type", range(
     len(source)), format_func=lambda x: source[x])
 start_yolo = st.button('Detect')
 stop_yolo = st.button('Stop')
-# if source_index == 0:
-#     uploaded_file = st.sidebar.file_uploader(
-#         "Load File", type=['png', 'jpeg', 'jpg'])
-#     if uploaded_file is not None:
-#         is_valid = True
-#         with st.spinner(text='Loading...'):
-#             st.sidebar.image(uploaded_file)
-#             picture = Image.open(uploaded_file)
-#             picture = picture.save(f'data/images/{uploaded_file.name}')
-#             img_source = f'data/images/{uploaded_file.name}'
-#     else:
-#         is_valid = False
-# else:
-uploaded_file = st.sidebar.file_uploader("Upload Video", type=['mp4'])
-if uploaded_file is not None:
-    is_valid = True
-    with st.spinner(text='Loading...'):
-        st.sidebar.video(uploaded_file)
-        with open(os.path.join("data", "videos", uploaded_file.name), "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        video_source = f'data/videos/{uploaded_file.name}'
+
+if source_index == 0:
+    uploaded_file = st.sidebar.file_uploader(
+        "Load File", type=['png', 'jpeg', 'jpg'])
+    if uploaded_file is not None:
+        is_valid = True
+        with st.spinner(text='Loading...'):
+            st.sidebar.image(uploaded_file)
+            picture = Image.open(uploaded_file)
+            picture = picture.save(f'data/images/{uploaded_file.name}')
+            img_source = f'data/images/{uploaded_file.name}'
+    else:
+        is_valid = False
 else:
-    is_valid = False
+    uploaded_file = st.sidebar.file_uploader("Upload Video", type=['mov'])
+    if uploaded_file is not None:
+        is_valid = True
+        with st.spinner(text='Loading...'):
+            st.sidebar.video(uploaded_file)
+            with open(os.path.join("data", "videos", uploaded_file.name), "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            video_source = f'data/videos/{uploaded_file.name}'
+    else:
+        is_valid = False
 
 
 def DetectReferenceImages():
@@ -211,37 +213,19 @@ if is_valid:
     #     processes.clear()
 
 
-if start_yolo:
-    logging.warning('-----------------yolo video prediction start---------------------')
-    detect_uploaded_video(video_source)
-    text = speech_uploaded_video()
-
-    sound_file = BytesIO()
-    tts = gTTS(f"{text}", lang='en')
-    tts.write_to_fp(sound_file)
-    st.audio(sound_file)
 
 if start_yolo:
-    logging.warning('-----------------yolo video prediction start---------------------')
-    detect_uploaded_video(video_source)
-    text = speech_uploaded_video()
+    with st.spinner(text='Audio loading...'):
+        logging.warning('-----------------yolo video prediction start---------------------')
+        detect_uploaded_video(video_source)
+        text = speech_uploaded_video()
 
-    sound_file = BytesIO()
-    tts = gTTS(f"{text}", lang='en')
-    tts.write_to_fp(sound_file)
-    # st.audio(sound_file)
-    b64 = base64.b64encode(sound_file).decode()
-    md = f"""
-             <audio autoplay>
-             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-             </audio>
-             """
-    st.markdown(
-             md,
-             unsafe_allow_html=True,
-         ).write("# Auto-playing Audio!")
+        sound_file = BytesIO()
+        tts = gTTS(f"{text}", lang='en')
+        tts.write_to_fp(sound_file)
+        st.audio(sound_file)
 
-    logging.warning ('-----------------------Audio END-----------------------------')
+        logging.warning ('-----------------------Audio END-----------------------------')
 
 if stop_yolo and processes:
     #stop_process(*processes)
