@@ -42,8 +42,8 @@ def check_folders():
 
 
 check_folders()
-
-st.title('YOLOv8 Streamlit App')
+st.set_page_config(page_title="YOLO App", page_icon= "👀")
+st.title('YOLO App for Video and Image')
 
 source = ("Image", "Video")
 source_index = st.sidebar.selectbox("Select Input type", range(
@@ -223,14 +223,6 @@ if stop_yolo and processes:
 
 
 #--------------------------------------------------v1 for streamlit ended-------------------------------------------------------
-
-
-
-
-
-
-
-
 
 
 # -----------------------------------v2 streamlit start-----------------------------------------
