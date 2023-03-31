@@ -174,10 +174,10 @@ def autoplay_audio(file_path: str):
          ).write("# Auto-playing Audio!")
 
 
-def stop_process(self):
-    self.kill()
-p1 = Process(target= Detect)
-p2 = Process(target= Speech)
+# def stop_process(self):
+#     self.kill()
+# p1 = Process(target= Detect)
+# p2 = Process(target= Speech)
 
 #def stopProcess():
  #   p1.kill()
