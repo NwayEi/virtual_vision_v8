@@ -197,7 +197,10 @@ if is_valid:
 
                 detect_uploaded(img_source)
                 text = speech_uploaded_video()
-
+                sound_file_img = BytesIO()
+                tts = gTTS(f"{text}", lang='en')
+                tts.write_to_fp(sound_file_img)
+                st.audio(sound_file_img)
 
         else:
             with st.spinner(text='Audio loading...'):
@@ -206,10 +209,10 @@ if is_valid:
                 detect_uploaded(video_source)
                 text = speech_uploaded_video()
 
-            sound_file = BytesIO()
-            tts = gTTS(f"{text}", lang='en')
-            tts.write_to_fp(sound_file)
-            st.audio(sound_file)
+                sound_file_video = BytesIO()
+                tts = gTTS(f"{text}", lang='en')
+                tts.write_to_fp(sound_file_video)
+                st.audio(sound_file_video)
 
             logging.warning ('-----------------------Audio END-----------------------------')
 
