@@ -188,44 +188,19 @@ def autoplay_audio(file_path: str):
  #   signal.SIGINT
 
 if is_valid:
-    print('valid')
-    print(video_source)
 
+    if start_yolo:
+        with st.spinner(text='Audio loading...'):
+            logging.warning('-----------------yolo video prediction start---------------------')
+            detect_uploaded_video(video_source)
+            text = speech_uploaded_video()
 
-    # p1 = Process(target = detect, args=(video_source,))
-    # p2= Process(target =speech)
-    # if start_yolo:
-    #     logging.warning('-----------------yolo start---------------------')
-    #     p1 = Process(target=detect_uploaded_video, args=(video_source,))
-    #     p1.start()
+            sound_file = BytesIO()
+            tts = gTTS(f"{text}", lang='en')
+            tts.write_to_fp(sound_file)
+            st.audio(sound_file)
 
-    #     logging.warning('---------------yolo speech start-------------------------')
-    #     p2 = Process(target=speech_uploaded_video)
-    #     p2.start()
-
-    #     p1.join()
-    #     p2.join()
-    #     logging.warnng ('-----------------------yolo stop-----------------------------')
-    #     processes.extend([p1,p2])
-
-    # if stop_yolo and processes:
-    #     #stop_process(*processes)
-    #     processes.clear()
-
-
-
-if start_yolo:
-    with st.spinner(text='Audio loading...'):
-        logging.warning('-----------------yolo video prediction start---------------------')
-        detect_uploaded_video(video_source)
-        text = speech_uploaded_video()
-
-        sound_file = BytesIO()
-        tts = gTTS(f"{text}", lang='en')
-        tts.write_to_fp(sound_file)
-        st.audio(sound_file)
-
-        logging.warning ('-----------------------Audio END-----------------------------')
+            logging.warning ('-----------------------Audio END-----------------------------')
 
 if stop_yolo and processes:
     #stop_process(*processes)
