@@ -15,6 +15,7 @@ import threading
 import logging
 import pyttsx3
 import time
+from io import BytesIO
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
@@ -130,30 +131,30 @@ def detect_uploaded_video(source):
     results = model.predict(source = source)
     logging.warning ('----------model  prediction start------------------')
 
-def speech_uploaded_video():
+# def speech_uploaded_video():
 
-    logging.warning ('----------speech start------------------')
-    engine = pyttsx3.init()
-    newVoiceRate = 170
-    engine.setProperty('rate', newVoiceRate)
+#     logging.warning ('----------speech start------------------')
+#     engine = pyttsx3.init()
+#     newVoiceRate = 170
+#     engine.setProperty('rate', newVoiceRate)
 
-    while True:
-        logging.warning(f'--------------START Reading File ----------')
-        file = open('speech.txt','r')
-        speech_text = file.read().strip()
-        file.close()
-        logging.warning(f'--------------END Reading File ----------{speech_text}')
+#     while True:
+#         logging.warning(f'--------------START Reading File ----------')
+#         file = open('speech.txt','r')
+#         speech_text = file.read().strip()
+#         file.close()
+#         logging.warning(f'--------------END Reading File ----------{speech_text}')
 
 
-        if speech_text != '':
-            text_to_speech(speech_text)
-            #engine.say(speech_text)
-            #engine.runAndWait()
+#         if speech_text != '':
+#             text_to_speech(speech_text)
+#             #engine.say(speech_text)
+#             #engine.runAndWait()
 
-         #Process the result here...
+#          #Process the result here...
 
-        time.sleep(3)
-        logging.warning ('----------speech end------------------')
+#         time.sleep(3)
+#         logging.warning ('----------speech end------------------')
 def text_to_speech(text):
 
     logging.warning ('----------START Text to speech ------------------')
@@ -165,13 +166,37 @@ def text_to_speech(text):
     logging.warning ('----------END Text to speech ------------------')
 
 
+def speech_uploaded_video():
+
+    logging.warning(f'--------------START Reading File ----------')
+    file = open('speech.txt','r')
+    speech_text = file.read().strip()
+    file.close()
+
+    logging.warning(f'--------------END Reading File ----------{speech_text}')
+
+    return speech_text
+
+def autoplay_audio(file_path: str):
+     with open(file_path, "rb") as f:
+         data = f.read()
+         b64 = base64.b64encode(data).decode()
+         md = f"""
+             <audio autoplay="true">
+             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+             </audio>
+             """
+         st.markdown(
+             md,
+             unsafe_allow_html=True,
+         ).write("# Auto-playing Audio!")
 
 
 
-# def stop_process(self):
-#     self.kill()
-# p1 = Process(target= Detect)
-# p2 = Process(target= Speech)
+def stop_process(self):
+    self.kill()
+p1 = Process(target= Detect)
+p2 = Process(target= Speech)
 
 def stopProcess():
     p1.kill()
@@ -186,23 +211,41 @@ if is_valid:
 
     # p1 = Process(target = detect, args=(video_source,))
     # p2= Process(target =speech)
-    if start_yolo:
-        logging.warning('-----------------yolo start---------------------')
-        p1 = Process(target=detect_uploaded_video, args=(video_source,))
-        p1.start()
+    # if start_yolo:
+    #     logging.warning('-----------------yolo start---------------------')
+    #     p1 = Process(target=detect_uploaded_video, args=(video_source,))
+    #     p1.start()
 
-        logging.warning('---------------yolo speech start-------------------------')
-        p2 = Process(target=speech_uploaded_video)
-        p2.start()
+    #     logging.warning('---------------yolo speech start-------------------------')
+    #     p2 = Process(target=speech_uploaded_video)
+    #     p2.start()
 
-        p1.join()
-        p2.join()
-        logging.warnng ('-----------------------yolo stop-----------------------------')
-        processes.extend([p1,p2])
+    #     p1.join()
+    #     p2.join()
+    #     logging.warnng ('-----------------------yolo stop-----------------------------')
+    #     processes.extend([p1,p2])
 
-    if stop_yolo and processes:
-        #stop_process(*processes)
-        processes.clear()
+    # if stop_yolo and processes:
+    #     #stop_process(*processes)
+    #     processes.clear()
+
+
+if start_yolo:
+    logging.warning('-----------------yolo video prediction start---------------------')
+    detect_uploaded_video(video_source)
+    text = speech_uploaded_video()
+
+    sound_file = BytesIO()
+    tts = gTTS(f"{text}", lang='en')
+    tts.write_to_fp(sound_file)
+    st.audio(sound_file)
+
+    logging.warning ('-----------------------Audio END-----------------------------')
+
+if stop_yolo and processes:
+    #stop_process(*processes)
+    processes.clear()
+
 
 
 
