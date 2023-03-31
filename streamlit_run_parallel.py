@@ -110,8 +110,6 @@ def detect_uploaded_video(source):
     logging.warning ('----------END model  prediction ------------------')
 
 # def speech_uploaded_video():
-
-<<<<<<< HEAD
 #     logging.warning ('----------speech start------------------')
 #     engine = pyttsx3.init()
 #     newVoiceRate = 170
@@ -143,16 +141,13 @@ def text_to_speech(text):
     audio_bytes = audio_file.read()
     st.audio(audio_bytes, format ='audio/mp3', start_time = 0)
     logging.warning ('----------END Text to speech ------------------')
-=======
     logging.warning(f'--------------START Reading File ----------')
     file = open('speech.txt','r')
     speech_text = file.read().strip()
     file.close()
->>>>>>> 9406aa10463b4968f1d455cb033ae62b7c155eea
 
     logging.warning(f'--------------END Reading File ----------{speech_text}')
 
-<<<<<<< HEAD
 def speech_uploaded_video():
 
     logging.warning(f'--------------START Reading File ----------')
@@ -170,23 +165,6 @@ def autoplay_audio(file_path: str):
          b64 = base64.b64encode(data).decode()
          md = f"""
              <audio autoplay="true">
-             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-             </audio>
-             """
-         st.markdown(
-             md,
-             unsafe_allow_html=True,
-         ).write("# Auto-playing Audio!")
-=======
-    return speech_text
->>>>>>> 9406aa10463b4968f1d455cb033ae62b7c155eea
-
-def autoplay_audio(file_path: str):
-     with open(file_path, "rb") as f:
-         data = f.read()
-         b64 = base64.b64encode(data).decode()
-         md = f"""
-             <audio controls autoplay="true">
              <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
              </audio>
              """
@@ -212,7 +190,6 @@ if is_valid:
     print(video_source)
 
 
-<<<<<<< HEAD
     # p1 = Process(target = detect, args=(video_source,))
     # p2= Process(target =speech)
     # if start_yolo:
@@ -244,7 +221,6 @@ if start_yolo:
     tts.write_to_fp(sound_file)
     st.audio(sound_file)
 
-=======
 if start_yolo:
     logging.warning('-----------------yolo video prediction start---------------------')
     detect_uploaded_video(video_source)
@@ -255,7 +231,6 @@ if start_yolo:
     tts.write_to_fp(sound_file)
     st.audio(sound_file)
 
->>>>>>> 9406aa10463b4968f1d455cb033ae62b7c155eea
     logging.warning ('-----------------------Audio END-----------------------------')
 
 if stop_yolo and processes:
