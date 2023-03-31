@@ -106,7 +106,7 @@ def DetectReferenceImages():
     print(f'-----------Laptop width : {ri.laptop_width_in_rf}')
 
 
-def detect_uploaded_video(source):
+def detect_uploaded(source):
     logging.warning ('----------START model  prediction------------------')
     results = model.predict(source = source)
     logging.warning ('----------END model  prediction ------------------')
@@ -190,17 +190,35 @@ def autoplay_audio(file_path: str):
 if is_valid:
 
     if start_yolo:
-        with st.spinner(text='Audio loading...'):
-            logging.warning('-----------------yolo video prediction start---------------------')
-            detect_uploaded_video(video_source)
-            text = speech_uploaded_video()
 
-            sound_file = BytesIO()
-            tts = gTTS(f"{text}", lang='en')
-            tts.write_to_fp(sound_file)
-            st.audio(sound_file)
+        if source_index == 0:
+            with st.spinner(text='Audio loading...'):
+                logging.warning('-----------------yolo video prediction start---------------------')
 
-            logging.warning ('-----------------------Audio END-----------------------------')
+                detect_uploaded(img_source)
+                text = speech_uploaded_video()
+
+                sound_file = BytesIO()
+                tts = gTTS(f"{text}", lang='en')
+                tts.write_to_fp(sound_file)
+                st.audio(sound_file)
+
+                logging.warning ('-----------------------Audio END-----------------------------')
+
+
+        else:
+            with st.spinner(text='Audio loading...'):
+                logging.warning('-----------------yolo video prediction start---------------------')
+
+                detect_uploaded(video_source)
+                text = speech_uploaded_video()
+
+                sound_file = BytesIO()
+                tts = gTTS(f"{text}", lang='en')
+                tts.write_to_fp(sound_file)
+                st.audio(sound_file)
+
+                logging.warning ('-----------------------Audio END-----------------------------')
 
 if stop_yolo and processes:
     #stop_process(*processes)
