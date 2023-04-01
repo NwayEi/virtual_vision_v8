@@ -53,7 +53,7 @@ stop_yolo = st.button('Stop')
 
 def infer_image(img):
     results = model.predict(img)
-    results.render()
+    # results.render()
     image = Image.fromarray(results.ims[0])
     return image
 
@@ -215,6 +215,12 @@ if is_valid:
                 with col2:
                     img = infer_image(img_source)
                     st.image(img, caption="Model prediction")
+                if st.sidebar.checkbox("Custom Classes"):
+                    model_names = list(model.names.values())
+                    assigned_class = st.sidebar.multiselect("Select Classes", model_names, default=[model_names[0]])
+                    classes = [model_names.index(name) for name in assigned_class]
+                    model.classes = classes
+
 
         else:
             with st.spinner(text='Audio loading...'):
