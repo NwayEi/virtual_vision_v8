@@ -17,6 +17,7 @@ import pyttsx3
 import time
 from io import BytesIO
 from PIL import Image
+import speech_recognition as sr
 
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
@@ -51,11 +52,11 @@ source_index = st.sidebar.selectbox("Select Input type", range(
 start_yolo = st.button('Detect')
 stop_yolo = st.button('Stop')
 
-def infer_image(img):
-    results = model.predict(img)
-    # results.render()
-    image = Image.fromarray(results.ims[0])
-    return image
+# def infer_image(img):
+#     results = model.predict(img)
+#     # results.render()
+#     image = Image.fromarray(results.ims[0])
+#     return image
 
 
 if source_index == 0:
@@ -203,7 +204,7 @@ if is_valid:
             with st.spinner(text='Audio loading...'):
                 logging.warning('-----------------yolo image prediction start---------------------')
 
-                detect_uploaded(img_source)
+                detected_img = detect_uploaded(img_source)
                 text = speech_uploaded_video()
                 sound_file_img = BytesIO()
                 tts = gTTS(f"{text}", lang='en')
@@ -213,8 +214,7 @@ if is_valid:
                 with col1:
                     st.image(img_source, caption="Selected Image")
                 with col2:
-                    img = infer_image(img_source)
-                    st.image(img, caption="Model prediction")
+                    st.image(detected_img, caption="Model prediction")
                 if st.sidebar.checkbox("Custom Classes"):
                     model_names = list(model.names.values())
                     assigned_class = st.sidebar.multiselect("Select Classes", model_names, default=[model_names[0]])
