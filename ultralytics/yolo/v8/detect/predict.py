@@ -244,13 +244,17 @@ class DetectionPredictor(BasePredictor):
 
 
         if self.new_text != self.old_text:
-            #Write to the file
+            #Write to the file speech single line by line for realtime
             self.old_text = self.new_text
-            file = open('speech.txt','w')
-            a = file.write(self.new_text)
-            file.close()
+            speech_file = open('speech.txt','w')
+            speech_file.write(self.new_text)
+            speech_file.close()
 
-            print (f'------------------WRITE FILE {self.new_text}---------------------------')
+            #Append writing to the file cloud speech for uploaded video and picture
+            cloud_file = open('cloudspeech.txt','a+')
+            cloud_file.write(f'\n{self.new_text}')
+            cloud_file.close()
+
             # Generate mp3 file
             gtts = gTTS(self.new_text, lang='en')
             gtts.save('myaudio.mp3')
