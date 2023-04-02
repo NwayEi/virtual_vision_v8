@@ -6,7 +6,7 @@ from ultralytics.yolo.engine.predictor import BasePredictor
 from ultralytics.yolo.engine.results import Results
 from ultralytics.yolo.utils import DEFAULT_CFG, ROOT, ops
 from ultralytics.yolo.utils.plotting import Annotator, colors, save_one_box
-# from gtts import gTTS
+from gtts import gTTS
 import ReferenceImageVal as rf
 new_text =''
 old_text = ''
@@ -72,6 +72,8 @@ class DetectionPredictor(BasePredictor):
                                         agnostic=self.args.agnostic_nms,
                                         max_det=self.args.max_det,
                                         classes=self.args.classes)
+        print('---------------------POST PROCESS PREDICTION -----------')
+        print(preds)
 
         results = []
         for i, pred in enumerate(preds):
@@ -82,6 +84,8 @@ class DetectionPredictor(BasePredictor):
             img_path = path[i] if isinstance(path, list) else path
             results.append(Results(orig_img=orig_img, path=img_path, names=self.model.names, boxes=pred))
         return results
+
+
 
     def write_results(self, idx, results, batch):
         p, im, im0 = batch
@@ -244,20 +248,25 @@ class DetectionPredictor(BasePredictor):
 
 
         if self.new_text != self.old_text:
-            #Write to the file
+            #Write to the file speech single line by line for realtime
             self.old_text = self.new_text
-            file = open('speech.txt','w')
-            a = file.write(self.new_text)
-            file.close()
+            speech_file = open('speech.txt','w')
+            speech_file.write(self.new_text)
+            speech_file.close()
 
-            #Generate mp3 file
-            # gtts = gTTS(self.new_text, lang='en')
-            # gtts.save('myaudio.mp3')
+            #Append writing to the file cloud speech for uploaded video and picture
+            #cloud_file = open('cloudspeech.txt','a+')
+            #cloud_file.write(f'\n{self.new_text}')
+            #cloud_file.close()
 
-            #reset the text
-            if self.new_text != '':
-                gtts = gTTS(self.new_text, lang='en')
-                gtts.save('myaudio.mp3')
+            # Generate mp3 file
+            #gtts = gTTS(self.new_text, lang='en')
+            #gtts.save('myaudio.mp3')
+
+            # reset the text
+            #if self.new_text != '':
+             #   gtts = gTTS(self.new_text, lang='en')
+              #  gtts.save('myaudio.mp3')
             self.new_text = ''
 
 
