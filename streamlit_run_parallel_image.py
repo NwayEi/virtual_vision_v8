@@ -223,7 +223,7 @@ def detect_uploaded_video(source):
     logging.warning ('----------START detect uploaded video------------------')
 
     IndoorDetectReferenceImages()
-    results = base_model.predict(source = source)
+    results = base_model.predict(source = source, save = True, imgsz=320, conf=0.5)
 
     size = len(results)
     index = 0
