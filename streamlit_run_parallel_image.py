@@ -191,7 +191,7 @@ if is_valid:
             with st.spinner(text='Audio loading...'):
                 logging.warning('-----------------yolo image prediction start---------------------')
 
-                res = model.predict(img_source)
+                res = model.predict(img_source, save = True, imgsz=320, conf=0.5)
                 output_image = f'runs/detect/train/{uploaded_file.name}'
 
                 text = speech_uploaded_video()
