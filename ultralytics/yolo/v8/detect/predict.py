@@ -72,6 +72,8 @@ class DetectionPredictor(BasePredictor):
                                         agnostic=self.args.agnostic_nms,
                                         max_det=self.args.max_det,
                                         classes=self.args.classes)
+        print('---------------------POST PROCESS PREDICTION -----------')
+        print(preds)
 
         results = []
         for i, pred in enumerate(preds):
@@ -82,6 +84,8 @@ class DetectionPredictor(BasePredictor):
             img_path = path[i] if isinstance(path, list) else path
             results.append(Results(orig_img=orig_img, path=img_path, names=self.model.names, boxes=pred))
         return results
+
+
 
     def write_results(self, idx, results, batch):
         p, im, im0 = batch
@@ -251,18 +255,18 @@ class DetectionPredictor(BasePredictor):
             speech_file.close()
 
             #Append writing to the file cloud speech for uploaded video and picture
-            cloud_file = open('cloudspeech.txt','a+')
-            cloud_file.write(f'\n{self.new_text}')
-            cloud_file.close()
+            #cloud_file = open('cloudspeech.txt','a+')
+            #cloud_file.write(f'\n{self.new_text}')
+            #cloud_file.close()
 
             # Generate mp3 file
-            gtts = gTTS(self.new_text, lang='en')
-            gtts.save('myaudio.mp3')
+            #gtts = gTTS(self.new_text, lang='en')
+            #gtts.save('myaudio.mp3')
 
             # reset the text
-            if self.new_text != '':
-                gtts = gTTS(self.new_text, lang='en')
-                gtts.save('myaudio.mp3')
+            #if self.new_text != '':
+             #   gtts = gTTS(self.new_text, lang='en')
+              #  gtts.save('myaudio.mp3')
             self.new_text = ''
 
 

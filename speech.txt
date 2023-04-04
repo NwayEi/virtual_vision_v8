@@ -1,2 +1,1 @@
-This is test
-this is testing 1 2 3
+1 bench, 1 chair, And Nearest object is chair at bottom  right  in 3.65 meter

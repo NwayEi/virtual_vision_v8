@@ -86,3 +86,11 @@
 4 persons, 1 stop sign, And Nearest object is person at bottom  left  in 0.00 meter
 4 persons, 1 stop sign, And Nearest object is person at bottom  left  in 0.00 meter
 4 persons, 1 stop sign, And Nearest object is person at bottom  left  in 0.00 meter
+ Person in 3.1 meter
+2.8
+1.8
+1.6
+1.2
+0.7
+0.5
+0.5
