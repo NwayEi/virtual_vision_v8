@@ -41,7 +41,7 @@ parking_meter_WIDTH = 2.7
 processes=[]
 selected_detected_class = [0,13,26,56,24,57,63,58,62,60,28,1,2,3,9,11,12]
 base_model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-custom_model = YOLO('best-3.pt') #custom trained model to classify male and female
+# custom_model = YOLO('best-3.pt') #custom trained model to classify male and female
 
 def IndoorDetectReferenceImages():
 
@@ -325,7 +325,6 @@ if is_valid:
 
                 detect_uploaded_photo(img_source)
                 text = read_textfile()
-
 
                 col1, col2 = st.columns(2)
                 with col1:
