@@ -17,14 +17,6 @@ import pyttsx3
 import time
 from io import BytesIO
 from PIL import Image
-import speech_recognition as sr
-import cv2
-import torch
-from pathlib import Path
-import PIL
-from ultralytics.yolo.utils.plotting import Annotator
-from ultralytics.yolo.v8.detect.predict import DetectionPredictor
-import matplotlib.pyplot as plt
 processes=[]
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 # is_gtts = False
