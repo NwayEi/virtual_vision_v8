@@ -38,6 +38,7 @@ stopsign_WIDTH = 0.6
 traffic_light_WIDth= 0.2
 parking_meter_WIDTH = 2.7
 
+
 processes=[]
 selected_detected_class = [0,13,26,56,24,57,63,58,62,60,28,1,2,3,9,11,12]
 base_model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
@@ -203,7 +204,9 @@ if source_index == 0:
             picture = Image.open(uploaded_file)
             picture = picture.save(f'data/images/{uploaded_file.name}')
             img_source = f'data/images/{uploaded_file.name}'
+
             output_image = f'runs/detect/predict/{uploaded_file.name}'
+
     else:
         is_valid = False
 else:
