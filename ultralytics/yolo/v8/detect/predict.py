@@ -255,18 +255,18 @@ class DetectionPredictor(BasePredictor):
             speech_file.close()
 
             #Append writing to the file cloud speech for uploaded video and picture
-            #cloud_file = open('cloudspeech.txt','a+')
-            #cloud_file.write(f'\n{self.new_text}')
-            #cloud_file.close()
+            cloud_file = open('cloudspeech.txt','a+')
+            cloud_file.write(f'\n{self.new_text}')
+            cloud_file.close()
 
-            # Generate mp3 file
-            #gtts = gTTS(self.new_text, lang='en')
-            #gtts.save('myaudio.mp3')
+            #Generate mp3 file
+            gtts = gTTS(self.new_text, lang='en')
+            gtts.save('myaudio.mp3')
 
-            # reset the text
-            #if self.new_text != '':
-             #   gtts = gTTS(self.new_text, lang='en')
-              #  gtts.save('myaudio.mp3')
+            #reset the text
+            if self.new_text != '':
+               gtts = gTTS(self.new_text, lang='en')
+               gtts.save('myaudio.mp3')
             self.new_text = ''
 
 
