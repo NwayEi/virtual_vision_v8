@@ -127,93 +127,100 @@ class DetectionPredictor(BasePredictor):
 
         distances = {}
         positions = {}
+
         for i, box in enumerate(reversed(det)):
-            x, y, width, height = det.xywh[i]
-            c = int(det.cls[i])
+
+            name = self.model.names[int(c)]
+            keyname = f'{name}-{i}'
+            x, y, width, height = box.xywh[0]
+            c = int(box.cls.item())
+            distance = 0
+
             if c == 0 : # 1. Person
                 focal_person = focal_length_finder(KNOWN_DISTANCE, person_WIDTH, rf.person_width_in_rf)
                 distance = distance_finder(focal_person, person_WIDTH, width)
-                distances[self.model.names[c]] = distance
+                distances[keyname] = distance
 
             if c == 13: # 2. Bench
                 focal_bench = focal_length_finder(KNOWN_DISTANCE, bench_WIDTH, rf.bench_width_in_rf )
                 distance = distance_finder(focal_bench, bench_WIDTH, width)
-                distances[self.model.names[c]] = distance
+                distances[keyname] = distance
 
             if c == 26: # 3. Handbag
                 focal_handbag= focal_length_finder(KNOWN_DISTANCE, handbag_WIDTH, rf.handbag_width_in_rf )
                 distance = distance_finder(focal_handbag, handbag_WIDTH, width)
-                distances[self.model.names[c]] = distance
+                distances[keyname] = distance
 
             if c == 56: # 4. Chair
                 focal_chair = focal_length_finder(KNOWN_DISTANCE, chair_WIDTH, rf.chair_width_in_rf )
                 distance = distance_finder(focal_chair, chair_WIDTH, width)
-                distances[self.model.names[c]] = distance
+                distances[keyname] = distance
 
             if c == 24: # 5. Backpack
                 focal_backpack= focal_length_finder(KNOWN_DISTANCE, backpack_WIDTH, rf.backpack_width_in_rf )
                 distance = distance_finder(focal_backpack, backpack_WIDTH, width)
-                distances[self.model.names[c]] = distance
+                distances[keyname] = distance
 
             if c == 57: # 6. Couch
                 focal_couch= focal_length_finder(KNOWN_DISTANCE, couch_WIDTH, rf.couch_width_in_rf )
                 distance = distance_finder(focal_couch, couch_WIDTH, width)
-                distances[self.model.names[c]] = distance
+                distances[keyname] = distance
 
             if c == 63: # 7. Laptop
                focal_laptop= focal_length_finder(KNOWN_DISTANCE, laptop_WIDTH, rf.laptop_width_in_rf )
                distance = distance_finder(focal_laptop, laptop_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 58: # 8. PottedPlant
                focal_plant = focal_length_finder(KNOWN_DISTANCE, potted_plant_WIDTH, rf.potted_plant_width_in_rf )
                distance = distance_finder(focal_plant, potted_plant_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 62: # 9. TV
                focal_TV = focal_length_finder(KNOWN_DISTANCE, tv_WIDTH, rf.tv_width_in_rf )
                distance = distance_finder(focal_TV, tv_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 60: # 10. Dining Table
                focal_dining_table = focal_length_finder(KNOWN_DISTANCE, dining_table_WIDTH, rf.dining_table_in_rf )
                distance = distance_finder(focal_dining_table, dining_table_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 28: # 11. Suitcase
                focal_suitcase = focal_length_finder(KNOWN_DISTANCE, suitcase_WIDTH, rf.suitcase_width_in_rf )
                distance = distance_finder(focal_suitcase, suitcase_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 2: # 1. Car
                focal_car = focal_length_finder(KNOWN_DISTANCE, car_WIDTH, rf.car_width_in_rf )
                distance = distance_finder(focal_car, car_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 3: # 2. MotorCycle
                focal_motorcycle = focal_length_finder(KNOWN_DISTANCE, motorcycle_WIDTH, rf.motorcycle_width_in_rf )
                distance = distance_finder(focal_motorcycle, motorcycle_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 1: # 3. Bicycle
                focal_bicycle = focal_length_finder(KNOWN_DISTANCE, bicycle_WIDTH, rf.bicycle_width_in_rf )
                distance = distance_finder(focal_bicycle, bicycle_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 11: # 4. Stopsign
                focal_stopsign = focal_length_finder(KNOWN_DISTANCE, stopsign_WIDTH, rf.stopsign_width_in_rf )
                distance = distance_finder(focal_stopsign, stopsign_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 9: # 5. Traffic Light
                focal_trafficlight = focal_length_finder(KNOWN_DISTANCE, traffic_light_WIDth, rf.trafficlight_width_in_rf )
                distance = distance_finder(focal_trafficlight, traffic_light_WIDth, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
 
             if c == 12: # 6. Parking Meter
                focal_parkingmeter = focal_length_finder(KNOWN_DISTANCE, parking_meter_WIDTH, rf.parkingmeter_width_in_rf )
                distance = distance_finder(focal_parkingmeter, parking_meter_WIDTH, width)
-               distances[self.model.names[c]] = distance
+               distances[keyname] = distance
+
 
             #find position of nearest detected item
             # use the center (x, y)-coordinates to derive the top and
@@ -227,46 +234,42 @@ class DetectionPredictor(BasePredictor):
             else:
                 W_pos = "right "
 
-            if y <= H/3:
-                H_pos = "top "
-            elif y <= (H/3 * 2):
-                H_pos = "mid "
-            else:
-                H_pos = "bottom "
+            #if y <= H/3:
+            #    H_pos = "top "
+            #elif y <= (H/3 * 2):
+            #    H_pos = "mid "
+            #else:
+            #    H_pos = "bottom "
 
-            positions[str(distance)] = f'{H_pos} {W_pos}'
+            position_key_name = f'{name}-{i}'
+            positions[position_key_name] = f'{W_pos}'
+            if distances:
+                print(f'----------------Loop [{i}] OBJECT : {self.model.names[int(c)]} ---- {distance}')
+
 
 
         if distances:
-            print('------------NEAREST OBJECT ------'+ min(distances, key=distances.get))
-            print('------------NEAREST OBJECT distance------'+ str(min(distances.values())))
-            #get nearest object name distance from dictionary
-            nearest_object_name = min(distances, key=distances.get)
-            nearest_object_distance = min(distances.values())
 
-            self.new_text += f"And Nearest object is {nearest_object_name} at {positions.get(str(nearest_object_distance))} in {nearest_object_distance:.2f} meter"
+            #get nearest object name distance from dictionary
+            min_k, min_v = min(distances.items(), key=lambda x: x[1])
+            print(f'Key Name : {min_k} {min_v}')
+
+            object_name = min_k.split("-")[0]
+
+            print(f'------------NEAREST OBJECT name ------{object_name}')
+            print(f'------------NEAREST OBJECT distance------ {min_v.item()}')
+
+
+            self.new_text += f"And Nearest object is {object_name} at {positions.get(str(min_k))} in {min_v.item():.2f} meter"
 
 
         if self.new_text != self.old_text:
             #Write to the file speech single line by line for realtime
+
             self.old_text = self.new_text
             speech_file = open('speech.txt','w')
             speech_file.write(self.new_text)
             speech_file.close()
-
-            #Append writing to the file cloud speech for uploaded video and picture
-            #cloud_file = open('cloudspeech.txt','a+')
-            #cloud_file.write(f'\n{self.new_text}')
-            #cloud_file.close()
-
-            # Generate mp3 file
-            #gtts = gTTS(self.new_text, lang='en')
-            #gtts.save('myaudio.mp3')
-
-            # reset the text
-            #if self.new_text != '':
-             #   gtts = gTTS(self.new_text, lang='en')
-              #  gtts.save('myaudio.mp3')
             self.new_text = ''
 
 
