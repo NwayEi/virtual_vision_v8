@@ -311,8 +311,9 @@ def clear_text():
 
 def generate_audio(text):
     audio_file = BytesIO()
-    tts = gTTS(f"{text}", lang='en')
-    tts.write_to_fp(audio_file)
+    if text != '':
+        tts = gTTS(f"{text}", lang='en')
+        tts.write_to_fp(audio_file)
 
     return audio_file
 
@@ -335,7 +336,8 @@ if is_valid:
                 with col2:
                     st.image(output_image, caption="Model prediction")
 
-                st.audio(generate_audio(text))
+                if text != '':
+                    st.audio(generate_audio(text))
         else:
             with st.spinner(text='Audio loading...'):
                 logging.warning('-----------------yolo video prediction start---------------------')
@@ -343,7 +345,8 @@ if is_valid:
                 detect_uploaded_video(video_source)
                 text = read_textfile()
 
-                st.audio(generate_audio(text))
+                if text != '':
+                    st.audio(generate_audio(text))
 
             logging.warning ('-----------------------Audio END-----------------------------')
 
