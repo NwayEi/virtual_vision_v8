@@ -181,6 +181,41 @@ class DetectionModel(BaseModel):
         self.names = {i: f'{i}' for i in range(self.yaml['nc'])}  # default names dict
         self.inplace = self.yaml.get('inplace', True)
 
+        print('FREEZING BACKBONE')
+        self.model[-1].stopbackward = True         #### MODIFICATION TO FREEZE BACKBONE
+
+#        print("PRINTING MODULES WITHIN TASK")
+#        for (name, module) in self.model.named_children():  ### MODIFICATION
+#            print(name, module)
+
+#        print('FREEZING FIRST 10 PARAMETERS')
+#        count=0                                 ### MODIFICATION
+#        for param in self.model.parameters():    ### MODIFICATION
+#            count +=1
+#            if count < 11: #freezing first 10 layers
+#                param.requires_grad = False
+        print('PRINTING HIGH LEVEL MODULE NAMES')
+
+        for (name, module) in self.model.named_children():
+            print(name)
+
+        print('FREEZING FIRST 18 MODULES')      ### MODIFICATION
+
+        count=0                                 ### MODIFICATION
+
+        for (name, module) in self.model.named_children():  ### MODIFICATION
+            for param in module.parameters():    ### MODIFICATION
+                if count < 19: #freezing first 18 MODULES
+                    param.requires_grad = False
+            count+=1
+
+
+
+#        print('PRINTING GRAD REQUIEMENT FROM TASKS')
+#       for param in self.model.parameters():    ### MODIFICATION
+#            print(param.requires_grad)
+
+
         # Build strides
         m = self.model[-1]  # Detect()
         if isinstance(m, (Detect, Segment)):
