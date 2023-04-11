@@ -123,7 +123,6 @@ def OutdoorDetectReferenceImages():
             print(f'-----------Parking Meter RF Class Name ID : {box.cls.item()} - WIDTH : {ri.parkingmeter_width_in_rf}')
 
 def Detect():
-
     IndoorDetectReferenceImages()
     OutdoorDetectReferenceImages()
     model.predict(source="0", show = True)
@@ -143,21 +142,18 @@ def Speech():
             engine.runAndWait()
         time.sleep(3)
 
-p1 = Process(target= Detect)
-p2 = Process(target= Speech)
+realtime_detection = Process(target= Detect)
+audio_process = Process(target= Speech)
 
 def stopProcess():
-    p1.kill()
-    #p2.kill()
+    realtime_detection.kill()
+    audio_process.kill()
     print('--------------EXIT START------------------')
     signal.SIGINT
     print('--------------EXIT END------------------')
 
 if __name__ == '__main__':
 
-  p1.start()
-  p2.start()
-  #time.sleep(30)
-  #stopProcess()
-  # p1.join()
-  # p2.join()
+  realtime_detection.start()
+  time.sleep(10)
+  audio_process.start()
