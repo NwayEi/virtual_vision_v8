@@ -22,7 +22,7 @@ class BaseModel(nn.Module):
     The BaseModel class serves as a base class for all the models in the Ultralytics YOLO family.
     """
 
-    def forward(self, x, profile=False, visualize=False):
+    def forward(self, x, profile=True, visualize=False):  #### CHANGED PROFILE TO TRUE
         """
         Forward pass of the model on a single scale.
         Wrapper for `_forward_once` method.
@@ -37,7 +37,7 @@ class BaseModel(nn.Module):
         """
         return self._forward_once(x, profile, visualize)
 
-    def _forward_once(self, x, profile=False, visualize=False):
+    def _forward_once(self, x, profile=True, visualize=False):  #### CHANGED PROFILE TO TRUE
         """
         Perform a forward pass through the network.
 
@@ -181,33 +181,42 @@ class DetectionModel(BaseModel):
         self.names = {i: f'{i}' for i in range(self.yaml['nc'])}  # default names dict
         self.inplace = self.yaml.get('inplace', True)
 
+#----------------------VEE's CODE START----------------------------------####
+
+
         print('FREEZING BACKBONE')
         self.model[-1].stopbackward = True         #### MODIFICATION TO FREEZE BACKBONE
+
 
 #        print("PRINTING MODULES WITHIN TASK")
 #        for (name, module) in self.model.named_children():  ### MODIFICATION
 #            print(name, module)
 
-#        print('FREEZING FIRST 10 PARAMETERS')
-#        count=0                                 ### MODIFICATION
-#        for param in self.model.parameters():    ### MODIFICATION
-#            count +=1
-#            if count < 11: #freezing first 10 layers
-#                param.requires_grad = False
+#
         print('PRINTING HIGH LEVEL MODULE NAMES')
 
         for (name, module) in self.model.named_children():
-            print(name)
+            print('NAME', name, 'MODULE', module)
 
-        print('FREEZING FIRST 18 MODULES')      ### MODIFICATION
+        print('FREEZING FIRST 19 OF 22 MODULES')      ### MODIFICATION
 
         count=0                                 ### MODIFICATION
 
+     #   for (name, module) in self.model.named_children():  ### MODIFICATION
+     #       for param in module.parameters():    ### MODIFICATION
+     #           if count < 20: #freezing first 19 MODULES
+     #               param.requires_grad = False
+     #               print('MODULE FROZEN', module, 'PARAM FROZEN', param)
+     #       count+=1
+
         for (name, module) in self.model.named_children():  ### MODIFICATION
-            for param in module.parameters():    ### MODIFICATION
-                if count < 19: #freezing first 18 MODULES
-                    param.requires_grad = False
+            for layer in module.children():
+                for param in layer.parameters():    ### MODIFICATION
+                    if count < 20: #freezing first 19 MODULES
+                        param.requires_grad = False
+                        print('MODULE FROZEN', module, 'LAYER FROZEN', layer, 'PARAMETER FROZEN', param)
             count+=1
+
 
 
 
@@ -215,7 +224,7 @@ class DetectionModel(BaseModel):
 #       for param in self.model.parameters():    ### MODIFICATION
 #            print(param.requires_grad)
 
-
+#------------------------- VEE's CODE END------------------------------------------------
         # Build strides
         m = self.model[-1]  # Detect()
         if isinstance(m, (Detect, Segment)):
