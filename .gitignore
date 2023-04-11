@@ -135,6 +135,8 @@ dmypy.json
 datasets/
 runs/
 wandb/
+training/runs/
+
 
 .DS_Store
 

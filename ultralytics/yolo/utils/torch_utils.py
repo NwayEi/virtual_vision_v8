@@ -176,11 +176,23 @@ def model_info(model, detailed=False, verbose=True, imgsz=640):
             LOGGER.info('%5g %40s %9s %12g %20s %10.3g %10.3g' %
                         (i, name, p.requires_grad, p.numel(), list(p.shape), p.mean(), p.std()))
 
+
     flops = get_flops(model, imgsz)
     fused = ' (fused)' if model.is_fused() else ''
     fs = f', {flops:.1f} GFLOPs' if flops else ''
     m = Path(getattr(model, 'yaml_file', '') or model.yaml.get('yaml_file', '')).stem.replace('yolo', 'YOLO') or 'Model'
     LOGGER.info(f'{m} summary{fused}: {len(list(model.modules()))} layers, {n_p} parameters, {n_g} gradients{fs}')
+
+
+    print('PRINTING AUTOGRAD REQUIREMENTS TO CONFIRM FROZEN MODULES')  ### MODIFICATION
+    modules = list(model.modules())
+    print('TOTAL NUMBER OF MODULES', len(modules))  ## MODIFICATION
+    for module in modules:              ### MODIFICATION
+        print('-----------------NEW MODULE-------------------------')
+        print(module)
+        print('-----------------PARAMETERS-------------------------------')
+        for param in module.parameters():    ### MODIFICATION
+            print(param, param.requires_grad)
 
 
 def get_num_params(model):
