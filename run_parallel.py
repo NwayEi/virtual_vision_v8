@@ -11,7 +11,6 @@ import numpy as np
 
 model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
 
-
 def IndoorDetectReferenceImages():
 
     result_person = model.predict(source='ReferenceImages/person.png')
@@ -83,7 +82,6 @@ def IndoorDetectReferenceImages():
             ri.suitcase_width_in_rf = box.xywh[0][2]
             print(f'-----------Suitcase RF Class Name ID : {box.cls.item()} - WIDTH : {ri.suitcase_width_in_rf}')
 
-
 def OutdoorDetectReferenceImages():
 
     result_bicycle = model.predict(source='ReferenceImages/bicycle.jpg')
@@ -121,6 +119,7 @@ def OutdoorDetectReferenceImages():
         if box.cls.item() == 12.0 :
             ri.parkingmeter_width_in_rf = box.xywh[0][2]
             print(f'-----------Parking Meter RF Class Name ID : {box.cls.item()} - WIDTH : {ri.parkingmeter_width_in_rf}')
+
 
 def Detect():
     IndoorDetectReferenceImages()

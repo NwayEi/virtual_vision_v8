@@ -42,7 +42,7 @@ parking_meter_WIDTH = 2.7
 processes=[]
 selected_detected_class = [0,13,26,56,24,57,63,58,62,60,28,1,2,3,9,11,12]
 base_model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-# custom_model = YOLO('best-3.pt') #custom trained model to classify male and female
+custom_model = YOLO('baseline_door_v1.pt') #custom trained model to classify male and female
 
 def IndoorDetectReferenceImages():
 
@@ -192,6 +192,7 @@ source = ("Image", "Video")
 source_index = st.sidebar.selectbox("Select Input type", range(
     len(source)), format_func=lambda x: source[x])
 start_yolo = st.button('Detect and Convert to Speech')
+start_yolo_door = st.button('Detect Door Behaviour')
 stop_yolo = st.button('Stop')
 
 if source_index == 0:
@@ -266,14 +267,21 @@ def detect_uploaded_video(source):
 
     logging.warning ('----------END detect uploaded video ------------------')
 
-def detect_uploaded_photo(source):
+def detect_uploaded_photo(source,type):
     logging.warning ('----------START detect uploaded photo------------------')
 
     IndoorDetectReferenceImages()
-    results = base_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
-
-    size = len(results)
+    results = []
     index = 0
+
+    if type == 'door':
+        results = custom_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
+        size = len(results)
+
+    else :
+        results = base_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
+        size = len(results)
+
 
     while index < size:
         cloud_file = open('cloudspeech.txt','a+')
@@ -281,11 +289,19 @@ def detect_uploaded_photo(source):
         for c in results[index].boxes.cls.unique():
 
             n = (results[index].boxes.cls == c).sum()  # detections per class
-            total_object_text = f"{n} {base_model.names[int(c)]}{'s' * (n > 1)}, "
+            total_object_text =''
+            if type == 'door':
+                class_name = custom_model.names[int(c)].replace("_", " ")
+                total_object_text = f"{n} {class_name}{'s' * (n > 1)}, "
+            else :
+                total_object_text = f"{n} {base_model.names[int(c)]}{'s' * (n > 1)}, "
+            print(f'WRITING TO THE FILE {total_object_text}')
             cloud_file.write(f'\n{total_object_text}')
 
         cloud_file.close()
         index = index + 1
+
+
 
     logging.warning ('----------END detect uploaded photo ------------------')
 
@@ -327,12 +343,12 @@ if is_valid:
             with st.spinner(text='Audio loading...'):
                 logging.warning('-----------------yolo image prediction start---------------------')
 
-                detect_uploaded_photo(img_source)
+                detect_uploaded_photo(img_source,'')
                 text = read_textfile()
 
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.image(img_source, caption="Selected Image")
+                    st.image(img_source, caption="Uploaded Image")
                 with col2:
                     st.image(output_image, caption="Model prediction")
 
@@ -349,6 +365,25 @@ if is_valid:
                     st.audio(generate_audio(text))
 
             logging.warning ('-----------------------Audio END-----------------------------')
+
+    if start_yolo_door:
+        clear_text()
+
+        if source_index == 0:
+            with st.spinner(text='Audio loading...'):
+                logging.warning('-----------------yolo door image prediction start---------------------')
+
+                detect_uploaded_photo(img_source,'door')
+                text = read_textfile()
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.image(img_source, caption="Uploaded Door Image")
+                with col2:
+                    st.image(output_image, caption="Door Model prediction")
+
+                if text != '':
+                    st.audio(generate_audio(text))
 
 if stop_yolo and processes:
     #stop_process(*processes)
