@@ -267,27 +267,41 @@ def detect_uploaded_video(source):
 
     logging.warning ('----------END detect uploaded video ------------------')
 
-def detect_uploaded_photo(source):
+def detect_uploaded_photo(source,type):
     logging.warning ('----------START detect uploaded photo------------------')
 
-    #IndoorDetectReferenceImages()
-    results = custom_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
-
-    size = len(results)
+    IndoorDetectReferenceImages()
+    results = []
     index = 0
-    print(f'Size : {size}')
+
+    if type == 'door':
+        results = custom_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
+        size = len(results)
+
+    else :
+        results = base_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
+        size = len(results)
+
+
     while index < size:
         cloud_file = open('cloudspeech.txt','a+')
 
         for c in results[index].boxes.cls.unique():
 
             n = (results[index].boxes.cls == c).sum()  # detections per class
-            total_object_text = f"{n} {custom_model.names[int(c)]}{'s' * (n > 1)}, "
+            total_object_text =''
+            if type == 'door':
+                class_name = custom_model.names[int(c)].replace("_", " ")
+                total_object_text = f"{n} {class_name}{'s' * (n > 1)}, "
+            else :
+                total_object_text = f"{n} {base_model.names[int(c)]}{'s' * (n > 1)}, "
             print(f'WRITING TO THE FILE {total_object_text}')
             cloud_file.write(f'\n{total_object_text}')
 
         cloud_file.close()
         index = index + 1
+
+
 
     logging.warning ('----------END detect uploaded photo ------------------')
 
@@ -329,7 +343,7 @@ if is_valid:
             with st.spinner(text='Audio loading...'):
                 logging.warning('-----------------yolo image prediction start---------------------')
 
-                detect_uploaded_photo(img_source)
+                detect_uploaded_photo(img_source,'')
                 text = read_textfile()
 
                 col1, col2 = st.columns(2)
@@ -359,7 +373,7 @@ if is_valid:
             with st.spinner(text='Audio loading...'):
                 logging.warning('-----------------yolo door image prediction start---------------------')
 
-                detect_uploaded_photo(img_source)
+                detect_uploaded_photo(img_source,'door')
                 text = read_textfile()
 
                 col1, col2 = st.columns(2)
