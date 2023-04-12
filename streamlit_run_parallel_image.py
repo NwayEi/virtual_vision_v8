@@ -348,7 +348,7 @@ if is_valid:
 
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.image(img_source, caption="Selected Image")
+                    st.image(img_source, caption="Uploaded Image")
                 with col2:
                     st.image(output_image, caption="Model prediction")
 
