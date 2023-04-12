@@ -192,6 +192,7 @@ source = ("Image", "Video")
 source_index = st.sidebar.selectbox("Select Input type", range(
     len(source)), format_func=lambda x: source[x])
 start_yolo = st.button('Detect and Convert to Speech')
+start_yolo_door = st.button('Detect Door Behaviour')
 stop_yolo = st.button('Stop')
 
 if source_index == 0:
@@ -269,12 +270,12 @@ def detect_uploaded_video(source):
 def detect_uploaded_photo(source):
     logging.warning ('----------START detect uploaded photo------------------')
 
-    IndoorDetectReferenceImages()
+    #IndoorDetectReferenceImages()
     results = custom_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
 
     size = len(results)
     index = 0
-
+    print(f'Size : {size}')
     while index < size:
         cloud_file = open('cloudspeech.txt','a+')
 
@@ -282,6 +283,7 @@ def detect_uploaded_photo(source):
 
             n = (results[index].boxes.cls == c).sum()  # detections per class
             total_object_text = f"{n} {custom_model.names[int(c)]}{'s' * (n > 1)}, "
+            print(f'WRITING TO THE FILE {total_object_text}')
             cloud_file.write(f'\n{total_object_text}')
 
         cloud_file.close()
@@ -349,6 +351,25 @@ if is_valid:
                     st.audio(generate_audio(text))
 
             logging.warning ('-----------------------Audio END-----------------------------')
+
+    if start_yolo_door:
+        clear_text()
+
+        if source_index == 0:
+            with st.spinner(text='Audio loading...'):
+                logging.warning('-----------------yolo door image prediction start---------------------')
+
+                detect_uploaded_photo(img_source)
+                text = read_textfile()
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.image(img_source, caption="Uploaded Door Image")
+                with col2:
+                    st.image(output_image, caption="Door Model prediction")
+
+                if text != '':
+                    st.audio(generate_audio(text))
 
 if stop_yolo and processes:
     #stop_process(*processes)
