@@ -281,7 +281,7 @@ def detect_uploaded_photo(source):
         for c in results[index].boxes.cls.unique():
 
             n = (results[index].boxes.cls == c).sum()  # detections per class
-            total_object_text = f"{n} {base_model.names[int(c)]}{'s' * (n > 1)}, "
+            total_object_text = f"{n} {custom_model.names[int(c)]}{'s' * (n > 1)}, "
             cloud_file.write(f'\n{total_object_text}')
 
         cloud_file.close()
