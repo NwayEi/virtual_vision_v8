@@ -42,7 +42,7 @@ parking_meter_WIDTH = 2.7
 processes=[]
 selected_detected_class = [0,13,26,56,24,57,63,58,62,60,28,1,2,3,9,11,12]
 base_model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-# custom_model = YOLO('best-3.pt') #custom trained model to classify male and female
+custom_model = YOLO('baseline_door_v1.pt') #custom trained model to classify male and female
 
 def IndoorDetectReferenceImages():
 
@@ -270,7 +270,7 @@ def detect_uploaded_photo(source):
     logging.warning ('----------START detect uploaded photo------------------')
 
     IndoorDetectReferenceImages()
-    results = base_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
+    results = custom_model.predict(source = source, save = True, imgsz=320, conf=0.5 )
 
     size = len(results)
     index = 0
