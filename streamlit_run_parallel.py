@@ -41,7 +41,7 @@ parking_meter_WIDTH = 2.7
 processes=[]
 selected_detected_class = [0,13,26,56,24,57,63,58,62,60,28,1,2,3,9,11,12]
 base_model = YOLO('yolov8n.pt')  #yolov8n.pt load a pretrained model (recommended for training)
-custom_model = YOLO('best-3.pt') #custom trained model to classify male and female
+door_model = YOLO('baseline_door_v1.pt') #custom trained model to classify male and female
 
 def IndoorDetectReferenceImages():
 
@@ -154,6 +154,8 @@ def OutdoorDetectReferenceImages():
             print(f'-----------Parking Meter RF Class Name ID : {box.cls.item()} - WIDTH : {ri.parkingmeter_width_in_rf}')
 
 
+def DetectOpenCloseDoors():
+    door_model.predict(source='0', show = True)
 
 def focal_length_finder (measured_distance, real_width, width_in_rf):
     focal_length = (width_in_rf * measured_distance) / real_width
@@ -266,8 +268,8 @@ def detect_uploaded_photo(source):
     logging.warning ('----------START detect uploaded photo------------------')
 
     IndoorDetectReferenceImages()
-    results = base_model.predict(source = source)
-
+    #results = base_model.predict(source = source)
+    results = base_model.predict(source=source)
     size = len(results)
     index = 0
 
