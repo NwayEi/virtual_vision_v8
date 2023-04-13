@@ -141,7 +141,7 @@ class DetectionPredictor(BasePredictor):
                 if c == 56: # 4. Chair
                     focal_chair = focal_length_finder(KNOWN_DISTANCE, chair_WIDTH, rf.chair_width_in_rf )
                     distance = distance_finder(focal_chair, chair_WIDTH, width)
-                    custom_distance = distance/3
+                    custom_distance = distance/1.5
                     distances[keyname] = custom_distance
 
             if confidenct_score >= 0.5:
@@ -179,7 +179,8 @@ class DetectionPredictor(BasePredictor):
                 if c == 63: # 7. Laptop
                     focal_laptop= focal_length_finder(KNOWN_DISTANCE, laptop_WIDTH, rf.laptop_width_in_rf )
                     distance = distance_finder(focal_laptop, laptop_WIDTH, width)
-                    distances[keyname] = distance
+                    custom_distance = distance/6
+                    distances[keyname] = custom_distance
 
                 if c == 58: # 8. PottedPlant
                     focal_plant = focal_length_finder(KNOWN_DISTANCE, potted_plant_WIDTH, rf.potted_plant_width_in_rf )
